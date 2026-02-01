@@ -29,6 +29,16 @@ const ReviewResults = () => {
   const reviewData = location.state?.review;
   const metadata = location.state?.metadata;
 
+  // Utility function to clean markdown code fences from code examples
+  const cleanCodeExample = (code: string) => {
+    if (!code) return code;
+    // Remove markdown code fences (```language and ```)
+    return code
+      .replace(/^```[\w]*\n?/gm, '')  // Remove opening fence with optional language
+      .replace(/\n?```$/gm, '')        // Remove closing fence
+      .trim();
+  };
+
   if (!reviewData) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -743,8 +753,8 @@ const ReviewResults = () => {
                                   {step.target_score}
                                 </Badge>
                               </div>
-                              <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm border-2 border-green-500/20">
-                                <code className="font-mono">{step.code_example}</code>
+                              <pre className="bg-slate-950 text-slate-50 p-4 rounded-lg overflow-x-auto text-sm border-2 border-green-500/20">
+                                <code className="font-mono whitespace-pre">{cleanCodeExample(step.code_example)}</code>
                               </pre>
                             </div>
                           )}

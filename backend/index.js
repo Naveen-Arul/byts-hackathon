@@ -255,32 +255,39 @@ Provide your analysis in this EXACT JSON structure with ALL fields:
       {
         "target_score": "6/10",
         "what_to_improve": "Specific improvement needed to reach this score",
-        "code_example": "Small code snippet showing this improvement",
+        "code_example": "COMPLETE, FULL working code - NOT snippets. Show the ENTIRE solution with all imports, main method, and logic. NO ellipsis (...) or truncation.",
         "key_changes": ["List of specific changes made"]
       },
       {
         "target_score": "7/10",
         "what_to_improve": "Next level improvement",
-        "code_example": "Code snippet with cumulative improvements",
+        "code_example": "COMPLETE, FULL working code with cumulative improvements. Show ENTIRE solution from imports to closing braces. NO ... or partial code.",
         "key_changes": ["Additional changes on top of previous"]
       },
       {
         "target_score": "8/10",
         "what_to_improve": "Advanced optimization",
-        "code_example": "More optimized code",
+        "code_example": "COMPLETE, FULL optimized code. Show the COMPLETE working solution. NO truncation or ellipsis.",
         "key_changes": ["Further improvements"]
       },
       {
         "target_score": "9-10/10",
         "what_to_improve": "Near-perfect solution",
-        "code_example": "Highly optimized, production-ready code",
+        "code_example": "COMPLETE, FULL production-ready code. Show the ENTIRE highly optimized solution with all details. NO ... or shortcuts.",
         "key_changes": ["Final touches for excellence"]
       }
     ]
   }
 }
 
-IMPORTANT: For scores below 8/10, ALWAYS provide the progressive_improvements section with step-by-step code examples showing how to improve from current score to 9-10/10.
+CRITICAL: Each code_example MUST be COMPLETE, RUNNABLE code with:
+- All necessary imports
+- Complete class/function definitions
+- Full implementation (NO // ... or ellipsis)
+- All edge case handling
+- Closing braces and proper syntax
+
+For scores below 8/10, ALWAYS provide the progressive_improvements section with FULL, COMPLETE code examples at each level.
 Be thorough, insightful, and educational. Identify ALL possible patterns the code might be using.`;
 
     // Call Groq LLaMA API
