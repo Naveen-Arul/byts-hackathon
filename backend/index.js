@@ -255,39 +255,49 @@ Provide your analysis in this EXACT JSON structure with ALL fields:
       {
         "target_score": "6/10",
         "what_to_improve": "Specific improvement needed to reach this score",
-        "code_example": "COMPLETE, FULL working code - NOT snippets. Show the ENTIRE solution with all imports, main method, and logic. NO ellipsis (...) or truncation.",
-        "key_changes": ["List of specific changes made"]
+        "code_example": "COMPLETE, FULL working code at 6/10 level - must be DIFFERENT from original code. Show ENTIRE solution with all imports, main method, and complete logic. NO ellipsis (...), NO snippets, NO truncation.",
+        "key_changes": ["List of 2-3 specific changes made from original code"]
       },
       {
         "target_score": "7/10",
-        "what_to_improve": "Next level improvement",
-        "code_example": "COMPLETE, FULL working code with cumulative improvements. Show ENTIRE solution from imports to closing braces. NO ... or partial code.",
-        "key_changes": ["Additional changes on top of previous"]
+        "what_to_improve": "Next level improvement - must be DIFFERENT from 6/10 code",
+        "code_example": "COMPLETE, FULL working code at 7/10 level with cumulative improvements. Must show NEW optimizations beyond 6/10 version. Show ENTIRE solution from imports to closing braces. NO ... or partial code.",
+        "key_changes": ["2-3 additional changes on top of 6/10 version"]
       },
       {
         "target_score": "8/10",
-        "what_to_improve": "Advanced optimization",
-        "code_example": "COMPLETE, FULL optimized code. Show the COMPLETE working solution. NO truncation or ellipsis.",
-        "key_changes": ["Further improvements"]
+        "what_to_improve": "Advanced optimization - must introduce NEW improvements beyond 7/10",
+        "code_example": "COMPLETE, FULL optimized code at 8/10 level. Must be SIGNIFICANTLY DIFFERENT from 7/10 code. Show the COMPLETE working solution with better algorithm/data structure. NO truncation or ellipsis.",
+        "key_changes": ["2-3 advanced improvements beyond 7/10 version"]
       },
       {
         "target_score": "9-10/10",
-        "what_to_improve": "Near-perfect solution",
-        "code_example": "COMPLETE, FULL production-ready code. Show the ENTIRE highly optimized solution with all details. NO ... or shortcuts.",
-        "key_changes": ["Final touches for excellence"]
+        "what_to_improve": "Near-perfect solution with production-grade quality - must be SUPERIOR to 8/10",
+        "code_example": "COMPLETE, FULL production-ready code at 9-10/10 level. Must include edge cases, optimal complexity, clean code practices that 8/10 lacks. Show the ENTIRE highly optimized solution with all details. NO ... or shortcuts.",
+        "key_changes": ["2-3 final touches for excellence beyond 8/10 version"]
       }
     ]
   }
 }
 
-CRITICAL: Each code_example MUST be COMPLETE, RUNNABLE code with:
-- All necessary imports
-- Complete class/function definitions
-- Full implementation (NO // ... or ellipsis)
-- All edge case handling
-- Closing braces and proper syntax
+CRITICAL INSTRUCTIONS FOR PROGRESSIVE IMPROVEMENTS:
+1. Each improvement level (6, 7, 8, 9-10) MUST show GENUINELY DIFFERENT code
+2. Do NOT copy the same code multiple times - each level should BUILD UPON and IMPROVE the previous
+3. Examples of progressive improvements:
+   - 6/10: Fix basic logic errors, add input validation
+   - 7/10: Optimize from O(n²) to O(n log n) with sorting
+   - 8/10: Further optimize to O(n) using hash map/set
+   - 9-10/10: Add comprehensive edge cases, error handling, clean code practices
+4. Each code_example MUST be COMPLETE, RUNNABLE code with:
+   - All necessary imports
+   - Complete class/function definitions  
+   - Full implementation (NO // ... or ellipsis)
+   - All edge case handling
+   - Closing braces and proper syntax
+5. Show ACTUAL IMPLEMENTATION differences, not just comments about what to change
 
-For scores below 8/10, ALWAYS provide the progressive_improvements section with FULL, COMPLETE code examples at each level.
+For scores below 8/10, ALWAYS provide the progressive_improvements section with DISTINCT, PROGRESSIVELY BETTER code examples at each level.
+
 Be thorough, insightful, and educational. Identify ALL possible patterns the code might be using.`;
 
     // Call Groq LLaMA API

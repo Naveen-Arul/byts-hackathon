@@ -114,26 +114,26 @@ const ReviewResults = () => {
           transition={{ duration: 0.5 }}
         >
           {/* Title & Overall Score */}
-          <div className="mb-8">
+          <div className="mb-6">
             <div className="flex items-start justify-between gap-4 mb-4 flex-wrap">
-              <div>
-                <h1 className="text-3xl font-bold mb-2">AI Code Review Report</h1>
-                <p className="text-muted-foreground">
+              <div className="flex-1 min-w-0">
+                <h1 className="text-2xl md:text-3xl font-bold mb-2">AI Code Review Report</h1>
+                <p className="text-sm text-muted-foreground">
                   Powered by Groq LLaMA 3.1 8B • {metadata?.language} • {new Date(metadata?.timestamp).toLocaleString()}
                 </p>
               </div>
               
               {/* Overall Score Card */}
               {reviewData.scoring && (
-                <Card className="min-w-[200px]">
-                  <CardContent className="pt-6 text-center">
-                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${getGradeColor(reviewData.scoring.grade)} text-white text-2xl font-bold mb-2`}>
+                <Card className="min-w-[160px]">
+                  <CardContent className="pt-4 pb-4 text-center">
+                    <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full ${getGradeColor(reviewData.scoring.grade)} text-white text-xl font-bold mb-2`}>
                       {reviewData.scoring.grade}
                     </div>
-                    <div className="text-3xl font-bold mb-1">
+                    <div className="text-2xl font-bold mb-1">
                       {reviewData.scoring.overall_score}
                     </div>
-                    <div className="text-sm text-muted-foreground">Overall Score</div>
+                    <div className="text-xs text-muted-foreground">Overall Score</div>
                   </CardContent>
                 </Card>
               )}
@@ -725,25 +725,25 @@ const ReviewResults = () => {
 
                         {/* Content */}
                         <div className="ml-4">
-                          <div className="flex items-center gap-2 mb-3">
-                            <Badge className="bg-green-600 text-lg">
-                              Target Score: {targetScore}
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge className="bg-green-600 text-sm">
+                              Target: {targetScore}
                             </Badge>
                           </div>
 
-                          <h4 className="text-lg font-semibold mb-2">
+                          <h4 className="text-base font-semibold mb-2">
                             {step.what_to_improve || 'Optimization Step'}
                           </h4>
 
                           {/* Key Changes */}
                           {step.key_changes && step.key_changes.length > 0 && (
-                            <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                              <h5 className="font-medium text-sm text-blue-600 mb-2">🔑 Key Changes:</h5>
-                              <ul className="space-y-1 text-sm">
+                            <div className="mb-3 p-2.5 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                              <h5 className="font-medium text-xs text-blue-600 mb-1.5">🔑 Key Changes:</h5>
+                              <ul className="space-y-1 text-xs">
                                 {step.key_changes.map((change: string, i: number) => (
                                   <li key={i} className="flex items-start gap-2">
-                                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                                    <span>{change}</span>
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-green-500 mt-0.5 flex-shrink-0" />
+                                    <span className="break-words">{change}</span>
                                   </li>
                                 ))}
                               </ul>
@@ -758,8 +758,8 @@ const ReviewResults = () => {
                                   {targetScore}
                                 </Badge>
                               </div>
-                              <pre className="bg-slate-950 text-slate-50 p-4 rounded-lg overflow-x-auto text-sm border-2 border-green-500/20">
-                                <code className="font-mono whitespace-pre">{cleanCodeExample(step.code_example)}</code>
+                              <pre className="bg-slate-950 text-slate-50 p-3 rounded-lg overflow-x-auto text-xs border border-green-500/20 max-w-full">
+                                <code className="font-mono whitespace-pre block">{cleanCodeExample(step.code_example)}</code>
                               </pre>
                             </div>
                           )}
@@ -773,10 +773,10 @@ const ReviewResults = () => {
                     )})}
 
                     {/* Final Achievement Message */}
-                    <div className="mt-6 p-6 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-lg border-2 border-green-500/30 text-center">
-                      <Award className="w-12 h-12 text-yellow-500 mx-auto mb-3" />
-                      <h3 className="text-xl font-bold mb-2">🎯 Goal: Excellence</h3>
-                      <p className="text-sm text-muted-foreground">
+                    <div className="mt-4 p-4 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-lg border border-green-500/30 text-center">
+                      <Award className="w-10 h-10 text-yellow-500 mx-auto mb-2" />
+                      <h3 className="text-lg font-bold mb-1">🎯 Goal: Excellence</h3>
+                      <p className="text-xs text-muted-foreground">
                         Follow these progressive improvements to achieve a top score!
                         Each step builds on the previous one.
                       </p>
