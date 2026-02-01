@@ -705,7 +705,12 @@ const ReviewResults = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
-                    {reviewData.progressive_improvements.improvement_path.map((step: any, idx: number) => (
+                    {reviewData.progressive_improvements.improvement_path.map((step: any, idx: number) => {
+                      // Safe extraction with defaults
+                      const targetScore = step.target_score || `${idx + 7}/10`;
+                      const scoreNumber = targetScore.split('/')[0];
+                      
+                      return (
                       <motion.div
                         key={idx}
                         initial={{ opacity: 0, x: -20 }}
@@ -715,19 +720,19 @@ const ReviewResults = () => {
                       >
                         {/* Score Badge */}
                         <div className="absolute -left-6 top-0 w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white font-bold shadow-lg">
-                          {step.target_score.split('/')[0]}
+                          {scoreNumber}
                         </div>
 
                         {/* Content */}
                         <div className="ml-4">
                           <div className="flex items-center gap-2 mb-3">
                             <Badge className="bg-green-600 text-lg">
-                              Target Score: {step.target_score}
+                              Target Score: {targetScore}
                             </Badge>
                           </div>
 
                           <h4 className="text-lg font-semibold mb-2">
-                            {step.what_to_improve}
+                            {step.what_to_improve || 'Optimization Step'}
                           </h4>
 
                           {/* Key Changes */}
@@ -750,7 +755,7 @@ const ReviewResults = () => {
                             <div className="relative">
                               <div className="absolute top-2 right-2 z-10">
                                 <Badge variant="secondary" className="text-xs">
-                                  {step.target_score}
+                                  {targetScore}
                                 </Badge>
                               </div>
                               <pre className="bg-slate-950 text-slate-50 p-4 rounded-lg overflow-x-auto text-sm border-2 border-green-500/20">
@@ -765,7 +770,7 @@ const ReviewResults = () => {
                           <div className="absolute left-0 bottom-0 w-0.5 h-6 bg-gradient-to-b from-green-500 to-transparent" />
                         )}
                       </motion.div>
-                    ))}
+                    )})}
 
                     {/* Final Achievement Message */}
                     <div className="mt-6 p-6 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-lg border-2 border-green-500/30 text-center">
