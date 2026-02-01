@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Code2,
   Send,
   Home,
   Maximize2,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -13,16 +14,24 @@ import CodingTimer from "@/components/compiler/CodingTimer";
 
 const Compiler = () => {
   const [isTyping, setIsTyping] = useState(false);
-  const [editorFocused, setEditorFocused] = useState(true); // Always true for embedded editor
+  const [editorFocused, setEditorFocused] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentCode, setCurrentCode] = useState("");
+  const [currentLanguage, setCurrentLanguage] = useState("python");
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Listen for code changes from embedded OneCompiler editor
   useEffect(() => {
     const handleMessage = (e: MessageEvent) => {
       // OneCompiler sends code change events when codeChangeEvent=true
-      if (e.data && (e.data.language || e.data.eventType === 'codeChange')) {
+      if (e.data && e.data.language) {
+        // Capture code and language from embedded editor
+        setCurrentCode(e.data.files?.[0]?.content || "");
+        setCurrentLanguage(e.data.language);
+        
         // User is typing - set typing state
         setIsTyping(true);
 
@@ -48,10 +57,57 @@ const Compiler = () => {
   }, []);
 
   const handleSubmitCode = async () => {
-    toast({
-      title: "🚀 Code Submitted",
-      description: "Your code has been submitted for AI evaluation.",
-    });
+    if (!currentCode || currentCode.trim() === "") {
+      toast({
+        title: "⚠️ No Code to Submit",
+        description: "Please write some code before submitting for review.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch("http://localhost:5000/review", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          language: currentLanguage,
+          code: currentCode,
+          problemStatement: "General code review and analysis"
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        toast({
+          title: "✅ AI Review Complete",
+          description: "Your code has been analyzed. Viewing results...",
+        });
+
+        // Navigate to results page with data
+        navigate("/review-results", {
+          state: {
+            review: result.review,
+            metadata: result.metadata
+          }
+        });
+      } else {
+        throw new Error(result.error || "Review failed");
+      }
+    } catch (error: any) {
+      toast({
+        title: "❌ Review Failed",
+        description: error.message || "Could not complete AI review",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleFullscreen = () => {
@@ -101,7 +157,7 @@ const Compiler = () => {
             variant="ghost"
             size="sm"
             onClick={handleFullscreen}
-            className="gap-2"
+            className="gap-2 hidden sm:flex"
           >
             <Maximize2 className="w-4 h-4" />
             <span className="hidden sm:inline">Fullscreen</span>
@@ -110,10 +166,20 @@ const Compiler = () => {
           <Button
             size="sm"
             onClick={handleSubmitCode}
+            disabled={isSubmitting}
             className="gap-2 btn-primary-glow"
           >
-            <Send className="w-4 h-4" />
-            Submit for AI Review
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4" />
+                Submit for AI Review
+              </>
+            )}
           </Button>
         </div>
       </motion.header>
