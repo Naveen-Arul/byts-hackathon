@@ -676,6 +676,101 @@ const ReviewResults = () => {
               </Card>
             )}
 
+            {/* Progressive Improvements - NEW FEATURE! */}
+            {reviewData.progressive_improvements && reviewData.progressive_improvements.improvement_path && (
+              <Card className="border-2 border-green-500/50 bg-gradient-to-br from-green-500/5 to-blue-500/5">
+                <CardHeader>
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="w-6 h-6 text-green-500" />
+                      Progressive Improvement Path
+                    </CardTitle>
+                    <Badge variant="outline" className="text-lg">
+                      Current: {reviewData.progressive_improvements.current_score}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Step-by-step code improvements to increase your score from {reviewData.progressive_improvements.current_score} to 9-10/10
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {reviewData.progressive_improvements.improvement_path.map((step: any, idx: number) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.1 }}
+                        className="relative pl-8 pb-6 border-l-4 border-green-500"
+                      >
+                        {/* Score Badge */}
+                        <div className="absolute -left-6 top-0 w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white font-bold shadow-lg">
+                          {step.target_score.split('/')[0]}
+                        </div>
+
+                        {/* Content */}
+                        <div className="ml-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Badge className="bg-green-600 text-lg">
+                              Target Score: {step.target_score}
+                            </Badge>
+                          </div>
+
+                          <h4 className="text-lg font-semibold mb-2">
+                            {step.what_to_improve}
+                          </h4>
+
+                          {/* Key Changes */}
+                          {step.key_changes && step.key_changes.length > 0 && (
+                            <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                              <h5 className="font-medium text-sm text-blue-600 mb-2">🔑 Key Changes:</h5>
+                              <ul className="space-y-1 text-sm">
+                                {step.key_changes.map((change: string, i: number) => (
+                                  <li key={i} className="flex items-start gap-2">
+                                    <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                                    <span>{change}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {/* Code Example */}
+                          {step.code_example && (
+                            <div className="relative">
+                              <div className="absolute top-2 right-2 z-10">
+                                <Badge variant="secondary" className="text-xs">
+                                  {step.target_score}
+                                </Badge>
+                              </div>
+                              <pre className="bg-muted p-4 rounded-lg overflow-x-auto text-sm border-2 border-green-500/20">
+                                <code className="font-mono">{step.code_example}</code>
+                              </pre>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Connector line to next step */}
+                        {idx < reviewData.progressive_improvements.improvement_path.length - 1 && (
+                          <div className="absolute left-0 bottom-0 w-0.5 h-6 bg-gradient-to-b from-green-500 to-transparent" />
+                        )}
+                      </motion.div>
+                    ))}
+
+                    {/* Final Achievement Message */}
+                    <div className="mt-6 p-6 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-lg border-2 border-green-500/30 text-center">
+                      <Award className="w-12 h-12 text-yellow-500 mx-auto mb-3" />
+                      <h3 className="text-xl font-bold mb-2">🎯 Goal: Excellence</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Follow these progressive improvements to achieve a top score!
+                        Each step builds on the previous one.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Overall Feedback */}
             <Card className="border-2 border-primary/50">
               <CardHeader>

@@ -247,9 +247,40 @@ Provide your analysis in this EXACT JSON structure with ALL fields:
     "resembles_common_pattern": true/false,
     "pattern_name": "If resembles a known template",
     "uniqueness_score": "X/10"
+  },
+  
+  "progressive_improvements": {
+    "current_score": "Current overall score (e.g., 5/10)",
+    "improvement_path": [
+      {
+        "target_score": "6/10",
+        "what_to_improve": "Specific improvement needed to reach this score",
+        "code_example": "Small code snippet showing this improvement",
+        "key_changes": ["List of specific changes made"]
+      },
+      {
+        "target_score": "7/10",
+        "what_to_improve": "Next level improvement",
+        "code_example": "Code snippet with cumulative improvements",
+        "key_changes": ["Additional changes on top of previous"]
+      },
+      {
+        "target_score": "8/10",
+        "what_to_improve": "Advanced optimization",
+        "code_example": "More optimized code",
+        "key_changes": ["Further improvements"]
+      },
+      {
+        "target_score": "9-10/10",
+        "what_to_improve": "Near-perfect solution",
+        "code_example": "Highly optimized, production-ready code",
+        "key_changes": ["Final touches for excellence"]
+      }
+    ]
   }
 }
 
+IMPORTANT: For scores below 8/10, ALWAYS provide the progressive_improvements section with step-by-step code examples showing how to improve from current score to 9-10/10.
 Be thorough, insightful, and educational. Identify ALL possible patterns the code might be using.`;
 
     // Call Groq LLaMA API
