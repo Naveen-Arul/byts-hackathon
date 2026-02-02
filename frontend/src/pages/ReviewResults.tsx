@@ -31,12 +31,22 @@ const ReviewResults = () => {
 
   // Utility function to clean markdown code fences from code examples
   const cleanCodeExample = (code: string) => {
-    if (!code) return code;
-    // Remove markdown code fences (```language and ```)
-    return code
-      .replace(/^```[\w]*\n?/gm, '')  // Remove opening fence with optional language
-      .replace(/\n?```$/gm, '')        // Remove closing fence
-      .trim();
+    if (!code) return '';
+    if (typeof code !== 'string') return String(code);
+    
+    let cleaned = code.trim();
+    
+    // Remove markdown code fences - handle various formats
+    // Match ```language at start
+    cleaned = cleaned.replace(/^```[\w+#-]*\s*\n/i, '');
+    // Match ``` at end
+    cleaned = cleaned.replace(/\n?```\s*$/i, '');
+    // Handle if entire string is wrapped in single backticks
+    if (cleaned.startsWith('`') && cleaned.endsWith('`') && !cleaned.includes('\n')) {
+      cleaned = cleaned.slice(1, -1);
+    }
+    
+    return cleaned.trim();
   };
 
   if (!reviewData) {
@@ -759,7 +769,7 @@ const ReviewResults = () => {
                                 </Badge>
                               </div>
                               <pre className="bg-slate-950 text-slate-50 p-3 rounded-lg overflow-x-auto text-xs border border-green-500/20 max-w-full">
-                                <code className="font-mono whitespace-pre block">{cleanCodeExample(step.code_example)}</code>
+                                <code className="font-mono whitespace-pre block">{step.code_example}</code>
                               </pre>
                             </div>
                           )}

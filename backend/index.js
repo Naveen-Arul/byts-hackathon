@@ -102,6 +102,7 @@ app.post("/review", async (req, res) => {
     const systemPrompt = `You are an elite code reviewer, algorithm expert, and interview coach.
 Your goal is to provide comprehensive, multi-dimensional code analysis that goes beyond basic evaluation.
 Identify ALL possible algorithm patterns, provide interview-ready insights, and mentor the student.
+CRITICAL: You MUST provide exactly 4 progressive improvement levels (6/10, 7/10, 8/10, 9-10/10) with complete, distinct code examples for each level. Never skip levels or provide fewer than 4 improvement steps.
 Always respond in valid JSON format only, with no additional text before or after the JSON.`;
 
     const userPrompt = `Perform a comprehensive, competition-grade analysis of the following ${language} code.
@@ -255,25 +256,25 @@ Provide your analysis in this EXACT JSON structure with ALL fields:
       {
         "target_score": "6/10",
         "what_to_improve": "Specific improvement needed to reach this score",
-        "code_example": "COMPLETE, FULL working code at 6/10 level - must be DIFFERENT from original code. Show ENTIRE solution with all imports, main method, and complete logic. NO ellipsis (...), NO snippets, NO truncation.",
+        "code_example": "COMPLETE, FULL working code at 6/10 level - must be DIFFERENT from original code. Show ENTIRE solution with all imports, main method, and complete logic. NO ellipsis (...), NO snippets, NO truncation. IMPORTANT: Return as plain text without markdown code fences or backticks.",
         "key_changes": ["List of 2-3 specific changes made from original code"]
       },
       {
         "target_score": "7/10",
         "what_to_improve": "Next level improvement - must be DIFFERENT from 6/10 code",
-        "code_example": "COMPLETE, FULL working code at 7/10 level with cumulative improvements. Must show NEW optimizations beyond 6/10 version. Show ENTIRE solution from imports to closing braces. NO ... or partial code.",
+        "code_example": "COMPLETE, FULL working code at 7/10 level with cumulative improvements. Must show NEW optimizations beyond 6/10 version. Show ENTIRE solution from imports to closing braces. NO ... or partial code. Return raw code without markdown formatting.",
         "key_changes": ["2-3 additional changes on top of 6/10 version"]
       },
       {
         "target_score": "8/10",
         "what_to_improve": "Advanced optimization - must introduce NEW improvements beyond 7/10",
-        "code_example": "COMPLETE, FULL optimized code at 8/10 level. Must be SIGNIFICANTLY DIFFERENT from 7/10 code. Show the COMPLETE working solution with better algorithm/data structure. NO truncation or ellipsis.",
+        "code_example": "COMPLETE, FULL optimized code at 8/10 level. Must be SIGNIFICANTLY DIFFERENT from 7/10 code. Show the COMPLETE working solution with better algorithm/data structure. NO truncation or ellipsis. Plain text only.",
         "key_changes": ["2-3 advanced improvements beyond 7/10 version"]
       },
       {
         "target_score": "9-10/10",
         "what_to_improve": "Near-perfect solution with production-grade quality - must be SUPERIOR to 8/10",
-        "code_example": "COMPLETE, FULL production-ready code at 9-10/10 level. Must include edge cases, optimal complexity, clean code practices that 8/10 lacks. Show the ENTIRE highly optimized solution with all details. NO ... or shortcuts.",
+        "code_example": "COMPLETE, FULL production-ready code at 9-10/10 level. Must include edge cases, optimal complexity, clean code practices that 8/10 lacks. Show the ENTIRE highly optimized solution with all details. NO ... or shortcuts. Return as executable code text.",
         "key_changes": ["2-3 final touches for excellence beyond 8/10 version"]
       }
     ]
@@ -281,22 +282,26 @@ Provide your analysis in this EXACT JSON structure with ALL fields:
 }
 
 CRITICAL INSTRUCTIONS FOR PROGRESSIVE IMPROVEMENTS:
-1. Each improvement level (6, 7, 8, 9-10) MUST show GENUINELY DIFFERENT code
-2. Do NOT copy the same code multiple times - each level should BUILD UPON and IMPROVE the previous
-3. Examples of progressive improvements:
+1. You MUST ALWAYS provide EXACTLY 4 improvement levels in the improvement_path array: 6/10, 7/10, 8/10, and 9-10/10
+2. DO NOT skip any levels - include all four entries even if the current score is already high
+3. Each improvement level (6, 7, 8, 9-10) MUST show GENUINELY DIFFERENT code
+4. Do NOT copy the same code multiple times - each level should BUILD UPON and IMPROVE the previous
+5. Examples of progressive improvements:
    - 6/10: Fix basic logic errors, add input validation
    - 7/10: Optimize from O(n²) to O(n log n) with sorting
    - 8/10: Further optimize to O(n) using hash map/set
    - 9-10/10: Add comprehensive edge cases, error handling, clean code practices
-4. Each code_example MUST be COMPLETE, RUNNABLE code with:
+6. Each code_example MUST be COMPLETE, RUNNABLE code with:
    - All necessary imports
    - Complete class/function definitions  
    - Full implementation (NO // ... or ellipsis)
    - All edge case handling
    - Closing braces and proper syntax
-5. Show ACTUAL IMPLEMENTATION differences, not just comments about what to change
+7. Show ACTUAL IMPLEMENTATION differences, not just comments about what to change
+8. CRITICAL: In the code_example field, return ONLY plain code text. NEVER wrap it in markdown code blocks or backticks. Return raw, executable code that can be directly displayed.
+9. Do NOT escape special characters unnecessarily. Return natural code syntax.
 
-For scores below 8/10, ALWAYS provide the progressive_improvements section with DISTINCT, PROGRESSIVELY BETTER code examples at each level.
+MANDATORY: For ALL code submissions (regardless of current score), provide the complete progressive_improvements section with ALL 4 distinct improvement levels (6/10, 7/10, 8/10, 9-10/10) with different code examples at each level.
 
 Be thorough, insightful, and educational. Identify ALL possible patterns the code might be using.`;
 
