@@ -1,0 +1,1114 @@
+## PREMIUM GLASSMORPHISM & MOTION SYSTEM
+
+Create a sophisticated hybrid glassmorphism visual system for CodeJudge AI.
+
+IMPORTANT:
+
+Do NOT use a single-color theme.
+
+Do NOT make the entire application dark.
+
+Do NOT make the entire application light.
+
+Use a carefully balanced combination of:
+
+- Light glass surfaces
+- Dark developer workspace surfaces
+- White translucent cards
+- Soft charcoal/slate panels
+- Sky blue accents
+- Emerald accents
+- Cyan highlights
+- Amber warnings
+- Coral errors
+- Very subtle violet/purple accents only where appropriate
+
+The application should feel like a premium AI developer product rather than a generic dashboard.
+
+==================================================
+1. HYBRID LIGHT + DARK VISUAL SYSTEM
+==================================================
+
+Use different visual environments based on context.
+
+PUBLIC LANDING PAGE:
+
+Primarily light.
+
+Use:
+
+#FFFFFF
+#F8FAFC
+#F1F5F9
+
+with translucent glass cards.
+
+Use subtle ambient gradients:
+
+Sky blue
+Cyan
+Emerald
+Soft violet
+
+These gradients must remain extremely subtle.
+
+--------------------------------------------------
+
+PUBLIC COMPILER:
+
+Use a darker developer workspace.
+
+The compiler/editor area can use:
+
+#0F172A
+#111827
+#1E293B
+#020617
+
+However, the surrounding page should remain lighter.
+
+This creates visual separation:
+
+Light SaaS shell
+        ↓
+Dark coding workspace
+
+The Monaco editor should use a professional dark coding theme.
+
+Do not use an excessive neon cyberpunk aesthetic.
+
+The compiler should feel like a premium professional IDE.
+
+--------------------------------------------------
+
+ADMIN DASHBOARD:
+
+Primarily light.
+
+Use:
+
+White background
+Frosted white cards
+Slate typography
+Soft blue/green accents
+
+Allow selected analytics panels to use slightly darker glass surfaces for visual hierarchy.
+
+--------------------------------------------------
+
+STUDENT DASHBOARD:
+
+Primarily light.
+
+Use:
+
+White
+Porcelain
+Very light blue
+Soft emerald
+
+Make it friendly and educational.
+
+--------------------------------------------------
+
+ASSESSMENT WORKSPACE:
+
+Use a hybrid layout.
+
+Light problem statement panel.
+
+Dark coding editor.
+
+Light question navigator.
+
+Dark or semi-dark timer/status area.
+
+This should visually separate:
+
+"Understand the Problem"
+
+from
+
+"Write the Solution"
+
+--------------------------------------------------
+
+AI ANALYSIS SCREEN:
+
+Use a slightly darker cinematic surface.
+
+Background:
+
+Deep slate / charcoal.
+
+Use subtle glowing nodes for AI agents.
+
+Do not use a completely black background.
+
+Use:
+
+#0F172A
+#111827
+#1E293B
+
+with:
+
+Sky blue
+Cyan
+Emerald
+
+as agent activity indicators.
+
+--------------------------------------------------
+
+RESULTS PAGE:
+
+Primarily light.
+
+Use white glass cards with occasional dark "AI reasoning" panels.
+
+The Master Judge section can use a premium dark glass card to visually emphasize the final verdict.
+
+==================================================
+2. GLASS CARD DESIGN
+==================================================
+
+Create premium frosted glass cards.
+
+Use combinations of:
+
+backdrop-filter: blur()
+
+semi-transparent backgrounds
+
+thin translucent borders
+
+soft shadows
+
+inner highlights
+
+subtle gradients
+
+Example visual characteristics:
+
+background:
+rgba(255,255,255,0.55)
+
+border:
+1px solid rgba(255,255,255,0.35)
+
+backdrop blur:
+18px–28px
+
+shadow:
+soft, large, low-opacity shadow
+
+Do NOT overuse blur.
+
+Glass should remain readable.
+
+Cards must maintain strong text contrast.
+
+--------------------------------------------------
+
+DARK GLASS CARDS:
+
+Use:
+
+rgba(15,23,42,0.65)
+
+with:
+
+rgba(255,255,255,0.08)
+
+borders.
+
+Use subtle cyan/blue highlights.
+
+Never make dark cards completely opaque unless necessary.
+
+==================================================
+3. GLASS LAYERS
+==================================================
+
+Create visual depth using 3 layers.
+
+BACKGROUND
+
+Soft gradient / ambient lighting.
+
+↓
+
+GLASS SURFACE
+
+Semi-transparent frosted card.
+
+↓
+
+CONTENT
+
+High-contrast text and controls.
+
+Avoid flat UI.
+
+Avoid excessive shadows.
+
+Use depth through transparency and layering.
+
+==================================================
+4. AMBIENT BACKGROUND EFFECTS
+==================================================
+
+Create very subtle background lighting.
+
+Use large blurred radial gradients.
+
+Example:
+
+Sky blue glow
+Emerald glow
+Cyan glow
+Very subtle violet glow
+
+Position them around:
+
+Hero
+
+AI Agent section
+
+Compiler
+
+Results
+
+Do NOT create visible giant gradient circles.
+
+The user should feel the lighting rather than immediately notice the effect.
+
+Use:
+
+opacity: 0.08–0.18
+
+large blur radius.
+
+==================================================
+5. GLASS REFLECTION EFFECT
+==================================================
+
+Add extremely subtle reflective highlights to premium cards.
+
+When the cursor moves over a card:
+
+A soft light reflection should move slightly across the surface.
+
+Do not create a strong glossy shine.
+
+The effect should resemble:
+
+premium hardware glass
+
+rather than
+
+gaming UI.
+
+Use Framer Motion.
+
+==================================================
+6. CARD HOVER ANIMATIONS
+==================================================
+
+Every interactive card should have subtle motion.
+
+Default:
+
+transform:
+translateY(0)
+
+Hover:
+
+translateY(-4px)
+
+with a slightly stronger shadow.
+
+Duration:
+
+180–250ms.
+
+Use:
+
+ease-out.
+
+Do not make cards jump.
+
+--------------------------------------------------
+
+For feature cards:
+
+Hover:
+
+translateY(-5px)
+
+slight border illumination
+
+very subtle background gradient
+
+icon moves 2–3px upward
+
+--------------------------------------------------
+
+For agent cards:
+
+Hover:
+
+slight elevation
+
+agent icon glow increases
+
+border becomes slightly more visible
+
+agent status indicator becomes brighter
+
+Do NOT animate the entire card continuously.
+
+==================================================
+7. 3D TILT EFFECT
+==================================================
+
+Use extremely subtle cursor-based tilt for selected hero cards only.
+
+Maximum:
+
+2–4 degrees.
+
+Apply ONLY to:
+
+Hero AI evaluation preview
+
+Featured Master Judge card
+
+Important feature card
+
+Do not apply 3D tilt to:
+
+Tables
+
+Forms
+
+Code editor
+
+Assessment questions
+
+Navigation
+
+This keeps the interface professional.
+
+==================================================
+8. MAGNETIC BUTTON EFFECT
+==================================================
+
+Primary CTA buttons can have a subtle magnetic cursor effect.
+
+Examples:
+
+Try AI Code Judge
+
+Evaluate Code with AI
+
+Start Assessment
+
+Create Assessment
+
+When cursor approaches:
+
+Button moves 1–3px toward cursor.
+
+Keep movement extremely subtle.
+
+Do not make buttons follow the cursor aggressively.
+
+==================================================
+9. BUTTON DESIGN
+==================================================
+
+Primary button:
+
+Sky blue / cyan gradient.
+
+Example:
+
+#0EA5E9 → #06B6D4
+
+Use:
+
+soft shadow
+
+subtle glow
+
+white text.
+
+Hover:
+
+slightly brighter
+
+shadow increases
+
+1–2px upward movement
+
+Active:
+
+scale(0.98)
+
+--------------------------------------------------
+
+Success buttons:
+
+Emerald
+
+#10B981
+
+--------------------------------------------------
+
+Warning:
+
+Amber
+
+#F59E0B
+
+--------------------------------------------------
+
+Danger:
+
+Coral
+
+#EF4444
+
+Do not use gradients for every button.
+
+Secondary buttons should remain neutral glass/white.
+
+==================================================
+10. AI AGENT ANIMATION
+==================================================
+
+The 9-agent pipeline should have an intelligent visual identity.
+
+Create a node-based animation.
+
+Example:
+
+                Intent
+                   ↓
+        ┌──────────┼──────────┐
+        ↓          ↓          ↓
+      Logic    Complexity   Security
+        ↓          ↓          ↓
+        └──────────┼──────────┘
+                   ↓
+              Feedback
+                   ↓
+             Master Judge
+
+During analysis:
+
+Agent nodes should softly pulse.
+
+Connection lines should have a moving light particle.
+
+Completed agents:
+
+Green check indicator.
+
+Active agent:
+
+Cyan/sky blue pulse.
+
+Waiting:
+
+Muted slate.
+
+Error:
+
+Coral.
+
+Do not use constant flashing.
+
+==================================================
+11. MASTER JUDGE ANIMATION
+==================================================
+
+The Master Judge should have a special visual treatment.
+
+When evaluation completes:
+
+1. Agent results converge toward Master Judge.
+
+2. Master Judge card softly illuminates.
+
+3. Score appears with a smooth count-up animation.
+
+4. Verdict fades/slides into view.
+
+5. Confidence indicator fills.
+
+6. Final feedback appears.
+
+Do not use fireworks or excessive celebration.
+
+The animation should feel like:
+
+"AI evaluation completed"
+
+not:
+
+"video game reward."
+
+==================================================
+12. SCORE ANIMATIONS
+==================================================
+
+Score circles should animate from:
+
+0 → final score.
+
+Duration:
+
+800–1200ms.
+
+Use easing.
+
+Example:
+
+85 / 100
+
+The number should smoothly count upward.
+
+Progress bars:
+
+Animate width from 0 → final value.
+
+Do not animate scores repeatedly.
+
+==================================================
+13. PAGE TRANSITIONS
+==================================================
+
+Use Framer Motion for page transitions.
+
+Recommended:
+
+opacity:
+
+0 → 1
+
+translateY:
+
+8px → 0
+
+Duration:
+
+200–350ms.
+
+Keep transitions fast.
+
+Do not create slow cinematic transitions between every page.
+
+==================================================
+14. SCROLL REVEAL
+==================================================
+
+Landing page sections can reveal as the user scrolls.
+
+Animation:
+
+opacity:
+
+0 → 1
+
+translateY:
+
+25px → 0
+
+Use staggered children.
+
+Example:
+
+Feature card 1
+Feature card 2
+Feature card 3
+Feature card 4
+
+appear with a slight stagger.
+
+Do not animate every paragraph individually.
+
+==================================================
+15. GLASS NAVBAR
+==================================================
+
+Navbar initially:
+
+transparent.
+
+After scrolling:
+
+semi-transparent glass.
+
+backdrop blur.
+
+thin border.
+
+soft shadow.
+
+Use smooth transition.
+
+The navbar should appear to "activate" when the user scrolls.
+
+==================================================
+16. FLOATING AI ELEMENTS
+==================================================
+
+Hero section can contain floating glass chips:
+
+Logic ✓
+
+Complexity ✓
+
+Security ✓
+
+Edge Cases ✓
+
+AI Judge ✓
+
+These can move slowly.
+
+Use extremely subtle floating motion:
+
+2–6px vertical movement.
+
+Different durations:
+
+4s
+
+5s
+
+6s
+
+Do not make them move continuously across the entire screen.
+
+==================================================
+17. CODE EDITOR VISUAL EFFECT
+==================================================
+
+The Monaco editor should remain professional.
+
+Do NOT add unnecessary animations inside the code editor.
+
+Instead animate the surrounding shell.
+
+Editor card:
+
+dark glass
+
+subtle border
+
+soft blue/cyan glow
+
+Top toolbar:
+
+semi-transparent dark glass.
+
+When AI evaluation begins:
+
+Add a subtle animated border around the editor.
+
+Display:
+
+"AI Analysis Active"
+
+with a small pulsing indicator.
+
+==================================================
+18. AI THINKING EFFECT
+==================================================
+
+During evaluation:
+
+Show a subtle animated AI indicator.
+
+Example:
+
+● AI agents analyzing...
+
+Three small dots can animate.
+
+Do not use a generic spinner everywhere.
+
+Use context-specific indicators.
+
+==================================================
+19. RESULT CARD ENTRANCE
+==================================================
+
+When results load:
+
+Reveal sections progressively.
+
+Order:
+
+Overall Score
+
+↓
+
+Problem
+
+↓
+
+Score Breakdown
+
+↓
+
+Logic
+
+↓
+
+Test Cases
+
+↓
+
+Complexity
+
+↓
+
+Security
+
+↓
+
+Adversarial
+
+↓
+
+Agent Insights
+
+↓
+
+Feedback
+
+↓
+
+Master Judge
+
+Each section should appear with:
+
+opacity
+
+small translateY
+
+stagger.
+
+Keep total animation under approximately 1.5 seconds.
+
+Do not make the user wait for animation.
+
+==================================================
+20. ACCORDION ANIMATION
+==================================================
+
+Agent insight cards should expand smoothly.
+
+Use:
+
+height animation
+
+opacity
+
+small translateY.
+
+Chevron rotates:
+
+0° → 180°.
+
+Duration:
+
+200ms.
+
+==================================================
+21. TABLE HOVER
+==================================================
+
+Tables should have subtle row hover.
+
+Default:
+
+transparent.
+
+Hover:
+
+very light blue/gray background.
+
+Do not animate entire rows dramatically.
+
+==================================================
+22. SIDEBAR ANIMATION
+==================================================
+
+Admin sidebar:
+
+Desktop:
+
+fixed glass sidebar.
+
+Collapse button.
+
+Collapsed:
+
+icons only.
+
+Expanded:
+
+icons + labels.
+
+Transition:
+
+250–300ms.
+
+Mobile:
+
+slide-in drawer.
+
+Backdrop blur.
+
+==================================================
+23. ASSESSMENT TIMER
+==================================================
+
+The test timer should NOT constantly pulse.
+
+Normal:
+
+neutral.
+
+10 minutes remaining:
+
+amber.
+
+5 minutes:
+
+coral.
+
+Less than 1 minute:
+
+subtle pulse.
+
+Do not use aggressive flashing.
+
+==================================================
+24. SUCCESS STATE
+==================================================
+
+When assessment submission succeeds:
+
+Show a clean success card.
+
+Icon:
+
+check-circle.
+
+Message:
+
+"Submission Received"
+
+Subtitle:
+
+"Your solution has been sent for AI evaluation."
+
+Then transition to evaluation progress.
+
+==================================================
+25. ERROR STATE
+==================================================
+
+Error cards should use:
+
+soft coral background
+
+coral border
+
+simple error icon.
+
+Avoid bright red full-screen designs.
+
+Provide clear recovery:
+
+Try Again
+
+Return to Compiler
+
+==================================================
+26. EMPTY STATE
+==================================================
+
+Empty states should use:
+
+soft glass card
+
+minimal illustration/icon
+
+clear message
+
+single CTA.
+
+Do not use giant empty illustrations.
+
+==================================================
+27. MICRO-INTERACTIONS
+==================================================
+
+Add subtle micro-interactions to:
+
+Buttons
+
+Cards
+
+Tabs
+
+Dropdowns
+
+Checkboxes
+
+Toggles
+
+Navigation
+
+Agent status
+
+Score indicators
+
+Code actions
+
+Examples:
+
+Button press:
+
+scale(0.98)
+
+Checkbox:
+
+small check animation
+
+Toggle:
+
+smooth sliding knob
+
+Tab:
+
+animated underline
+
+Icon button:
+
+small background highlight
+
+Copy:
+
+copy icon → check icon
+
+==================================================
+28. HOVER LIGHTING
+==================================================
+
+For premium glass cards:
+
+Use a very subtle radial light following the cursor.
+
+The light should remain within the card.
+
+Maximum opacity:
+
+0.08–0.12.
+
+This should feel like:
+
+"interactive glass"
+
+not:
+
+"mouse spotlight."
+
+==================================================
+29. DO NOT OVER-ANIMATE
+==================================================
+
+IMPORTANT DESIGN RULE:
+
+Animation should communicate:
+
+- State
+- Hierarchy
+- Interaction
+- Progress
+
+Animation should NOT exist simply because it looks cool.
+
+Avoid:
+
+Constant floating cards
+
+Infinite glowing borders
+
+Excessive particles
+
+Large rotating objects
+
+Aggressive 3D effects
+
+Bouncing buttons
+
+Screen-wide gradients
+
+Flashing elements
+
+Gaming-style neon effects
+
+==================================================
+30. FINAL VISUAL CHARACTER
+==================================================
+
+The final CodeJudge AI interface should feel like:
+
+Premium AI developer platform
++
+Modern IDE
++
+Professional assessment system
++
+Intelligent educational product.
+
+Visual keywords:
+
+Premium
+
+Glass
+
+Crisp
+
+Technical
+
+Elegant
+
+Responsive
+
+Intelligent
+
+Modern
+
+Trustworthy
+
+Subtle depth
+
+Soft lighting
+
+Smooth motion
+
+The interface should look impressive at first glance but remain highly usable after several minutes of interaction.
+
+The design should feel closer to a premium developer product than a Dribbble concept.
+
+Use light and dark surfaces strategically rather than forcing one theme across the entire application.

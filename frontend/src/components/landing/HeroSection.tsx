@@ -67,12 +67,12 @@ const HeroSection = () => {
             <Link to="/compiler">
               <Button size="lg" className="btn-primary-glow gap-2 px-8 h-12 text-base">
                 <Play className="w-4 h-4" />
-                Try Compiler
+                Start AI Review
               </Button>
             </Link>
-            <Link to="/login">
+            <Link to="/compiler">
               <Button size="lg" variant="outline" className="gap-2 px-8 h-12 text-base">
-                Student Login
+                Open Compiler
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>

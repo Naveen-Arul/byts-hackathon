@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "CodeJudge AI"
+description = "A premium AI-powered coding evaluation platform with a public code judge, structured assessments, admin controls, student workspaces, and rich evaluation feedback."
+version = "1.0.0"
+id = "artifacts/codejudge-ai"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19797
+
+[services.development]
+run = "pnpm --filter @workspace/codejudge-ai run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/codejudge-ai", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/codejudge-ai/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19797"
+BASE_PATH = "/"

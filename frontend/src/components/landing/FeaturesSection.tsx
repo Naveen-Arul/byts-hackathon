@@ -13,17 +13,17 @@ const features = [
   {
     icon: Code2,
     title: "Multi-Language Code Editor",
-    description: "Write and edit code in Python, Java, C, and C++ with syntax highlighting and auto-formatting.",
-  },
-  {
-    icon: Shield,
-    title: "Secure Code Execution",
-    description: "Execute your code in a sandboxed environment with real-time output display.",
+    description: "Write and edit code in Python, JavaScript, Java, and C++ with syntax highlighting.",
   },
   {
     icon: Brain,
-    title: "AI Logic Analysis",
-    description: "Deep analysis of your code's logic flow, identifying potential bugs and improvements.",
+    title: "Intent Detection",
+    description: "AI infers the programming task from submitted code before evaluation begins.",
+  },
+  {
+    icon: Shield,
+    title: "Multi-Agent Evaluation",
+    description: "Specialist agents review logic, test cases, complexity, hardcoding, and security.",
   },
   {
     icon: Timer,
@@ -42,8 +42,8 @@ const features = [
   },
   {
     icon: GraduationCap,
-    title: "Practice & Interview Mode",
-    description: "Prepare for coding interviews with curated problems and timed challenges.",
+    title: "Judge Report",
+    description: "Combined educational report with detected task, score, verdict, and learning feedback.",
   },
 ];
 

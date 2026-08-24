@@ -24,7 +24,7 @@ const Login = () => {
 
     toast({
       title: "Login Successful",
-      description: "Welcome back! Redirecting to compiler...",
+      description: "Welcome back! Redirecting to AI review workspace...",
     });
 
     setTimeout(() => {

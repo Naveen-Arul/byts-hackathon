@@ -1,66 +1,95 @@
 # Backend API Server
+# Backend API Server
 
-Node.js + Express backend for CodeJudge AI compiler.
+FastAPI backend for CodeJudge AI. The backend uses LangGraph and LangChain to judge submitted code with a multi-agent workflow.
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
-# Install dependencies (first time only)
-npm install
-
-# Start server
-node index.js
+pip install -r requirements.txt
+python run.py
 ```
 
-Server runs at: `http://localhost:5000`
+The server runs at `http://localhost:5000`.
 
-## 🔐 Environment Variables
+## Environment Variables
 
-Configure in `.env` file:
+Create a `.env` file in this folder:
 
 ```env
-RAPIDAPI_KEY=your_key_here
-RAPIDAPI_HOST=onecompiler-apis.p.rapidapi.com
-ONECOMPILER_URL=https://onecompiler-apis.p.rapidapi.com/api/v1/run
+GROQ_API_KEY=your_groq_api_key
+GROQ_MODEL=llama-3.1-8b-instant
 PORT=5000
+CORS_ORIGINS=http://localhost:5173
 ```
 
-## 📡 API Endpoints
+## Project Structure
+
+```
+backend/
+├── app/
+│   ├── api/
+│   ├── agents/
+│   ├── core/
+│   ├── graph/
+│   ├── schemas/
+│   ├── services/
+│   └── utils/
+├── main.py
+├── run.py
+├── requirements.txt
+└── README.md
+```
+
+## API
 
 ### `GET /`
-Health check endpoint
+Health check endpoint.
 
-**Response:**
+### `POST /evaluate`
+Submits code to the LangGraph evaluation engine.
+
+Request body:
+
 ```json
 {
-  "message": "Backend is running! 🚀",
-  "endpoints": {
-    "run": "POST /run - Execute code"
-  }
-}
-```
-
-### `POST /run`
-Execute code using OneCompiler API
-
-**Request Body:**
-```json
-{
+  "problem_statement": "...",
+  "sample_input": "...",
+  "sample_output": "...",
+  "student_code": "print('Hello World')",
   "language": "python",
-  "code": "print('Hello World')",
-  "input": ""
+  "student_explanation": "..."
 }
 ```
 
-**Response (Success):**
+Compatibility alias:
+
+### `POST /submit-code`
+Same behavior as `/evaluate` for older clients.
+
+Response shape:
+
 ```json
 {
   "status": "success",
-  "stdout": "Hello World\n",
-  "stderr": "",
-  "executionTime": 9,
-  "memoryUsed": 9816,
-  "compilationTime": 0
+  "review": {
+    "score": 91,
+    "confidence": 94,
+    "overall_feedback": "..."
+  },
+  "metadata": {
+    "model": "llama-3.1-8b-instant",
+    "language": "python",
+    "timestamp": "...",
+    "code_truncated_for_review": false
+  }
+}
+```
+    "model": "llama-3.1-8b-instant",
+    "language": "python",
+    "timestamp": "...",
+    "code_truncated_for_review": false
+  }
 }
 ```
 
@@ -68,12 +97,12 @@ Execute code using OneCompiler API
 ```json
 {
   "status": "error",
-  "error": "Code execution failed",
+  "error": "AI code review failed",
   "message": "..."
 }
 ```
 
-## 🧪 Testing
+## Testing
 
 Test with PowerShell:
 ```powershell
@@ -83,34 +112,21 @@ $body = @{
     input = ""
 } | ConvertTo-Json
 
-Invoke-RestMethod -Uri "http://localhost:5000/run" `
+Invoke-RestMethod -Uri "http://localhost:5000/submit-code" `
   -Method Post `
   -ContentType "application/json" `
   -Body $body
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 backend/
-├── .env              # Environment variables (not in Git)
-├── .gitignore        # Git ignore rules
-├── index.js          # Main server file
-├── package.json      # Dependencies
-└── README.md         # This file
+├── .env
+├── .gitignore
+├── graph.py
+├── main.py
+├── requirements.txt
+├── schemas.py
+└── README.md
 ```
-
-## 🔒 Security
-
-- API keys stored in `.env` (not committed to Git)
-- CORS enabled for frontend communication
-- Input validation on all endpoints
-
-## 🌐 Supported Languages
-
-- Python
-- JavaScript
-- Java
-- C
-- C++
-- And many more via OneCompiler API

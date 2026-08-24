@@ -1,108 +1,118 @@
-import { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Code2,
   Send,
   Home,
-  Maximize2,
   Loader2,
 } from "lucide-react";
+import Editor from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import CodingTimer from "@/components/compiler/CodingTimer";
+import { evaluateCode } from "@/lib/api";
+
+const LANGUAGE_TEMPLATES: Record<string, string> = {
+  python: `def solve():
+    # Write your code here
+    print("Hello, World!")
+
+if __name__ == "__main__":
+    solve()
+`,
+  javascript: `function solve() {
+    // Write your code here
+    console.log("Hello, World!");
+}
+
+// Run the solution
+solve();
+`,
+  java: `import java.util.*;
+
+public class Solution {
+    public static void main(String[] args) {
+        // Write your code here
+        System.out.println("Hello, World!");
+    }
+}
+`,
+  cpp: `#include <iostream>
+using namespace std;
+
+int main() {
+    // Write your code here
+    cout << "Hello, World!" << endl;
+    return 0;
+}
+`,
+};
 
 const Compiler = () => {
-  const [isTyping, setIsTyping] = useState(false);
-  const [editorFocused, setEditorFocused] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentCode, setCurrentCode] = useState("");
-  const [currentLanguage, setCurrentLanguage] = useState("python");
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const { toast } = useToast();
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentCode, setCurrentCode] = useState(LANGUAGE_TEMPLATES.python);
+  const [currentLanguage, setCurrentLanguage] = useState("python");
+  const { toast } = useToast();
 
-  // Listen for code changes from embedded OneCompiler editor
-  useEffect(() => {
-    const handleMessage = (e: MessageEvent) => {
-      // OneCompiler sends code change events when codeChangeEvent=true
-      if (e.data && e.data.language) {
-        // Capture code and language from embedded editor
-        setCurrentCode(e.data.files?.[0]?.content || "");
-        setCurrentLanguage(e.data.language);
-        
-        // User is typing - set typing state
-        setIsTyping(true);
+  const editorOptions = {
+    automaticLayout: true,
+    minimap: { enabled: false },
+    fontSize: 14,
+    tabSize: 2,
+    insertSpaces: true,
+    autoIndent: "advanced" as const,
+    formatOnType: true,
+    formatOnPaste: true,
+    autoClosingBrackets: "always" as const,
+    autoClosingQuotes: "always" as const,
+    autoSurround: "languageDefined" as const,
+    bracketPairColorization: { enabled: true },
+    scrollBeyondLastLine: false,
+    wordWrap: "on" as const,
+  };
 
-        // Clear existing timeout
-        if (typingTimeoutRef.current) {
-          clearTimeout(typingTimeoutRef.current);
-        }
-
-        // Stop typing indicator after 2 seconds of no activity
-        typingTimeoutRef.current = setTimeout(() => {
-          setIsTyping(false);
-        }, 2000);
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => {
-      window.removeEventListener("message", handleMessage);
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-    };
-  }, []);
+  const handleLanguageChange = (newLang: string) => {
+    const trimmedCode = currentCode.trim();
+    const prevTemplateTrimmed = (LANGUAGE_TEMPLATES[currentLanguage] || "").trim();
+    if (!trimmedCode || trimmedCode === prevTemplateTrimmed) {
+      setCurrentCode(LANGUAGE_TEMPLATES[newLang] || "");
+    }
+    setCurrentLanguage(newLang);
+  };
 
   const handleSubmitCode = async () => {
-    if (!currentCode || currentCode.trim() === "") {
+    if (!currentCode.trim()) {
       toast({
-        title: "⚠️ No Code to Submit",
-        description: "Please write some code before submitting for review.",
+        title: "No code to submit",
+        description: "Write some code before requesting AI evaluation.",
         variant: "destructive",
       });
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
-      const response = await fetch("http://localhost:5000/review", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          language: currentLanguage,
-          code: currentCode,
-          problemStatement: "General code review and analysis"
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.status === "success") {
-        toast({
-          title: "✅ AI Review Complete",
-          description: "Your code has been analyzed. Viewing results...",
-        });
-
-        // Navigate to results page with data
-        navigate("/review-results", {
-          state: {
-            review: result.review,
-            metadata: result.metadata
-          }
-        });
-      } else {
-        throw new Error(result.error || "Review failed");
-      }
-    } catch (error: any) {
+      const result = await evaluateCode(currentLanguage, currentCode);
       toast({
-        title: "❌ Review Failed",
-        description: error.message || "Could not complete AI review",
+        title: "AI review complete",
+        description: "Detected task and judge report are ready.",
+      });
+      // Navigate to full results page, passing the entire response as router state
+      navigate("/review-results", {
+        state: {
+          review: result.review,
+          metadata: result.metadata,
+          agent_outputs: result.agent_outputs,
+        },
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not complete AI review";
+      toast({
+        title: "Review failed",
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -110,24 +120,9 @@ const Compiler = () => {
     }
   };
 
-  const handleFullscreen = () => {
-    if (iframeRef.current) {
-      if (iframeRef.current.requestFullscreen) {
-        iframeRef.current.requestFullscreen();
-      }
-    }
-  };
-
   return (
     <div className="h-screen bg-background flex flex-col overflow-hidden">
-      {/* Top Bar */}
-      <motion.header
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.3 }}
-        className="h-14 border-b border-border/50 bg-card/80 backdrop-blur-xl flex items-center justify-between px-4 flex-shrink-0"
-      >
-        {/* Left Section */}
+      <header className="h-14 border-b border-border/50 bg-card/80 backdrop-blur-xl flex items-center justify-between px-4 flex-shrink-0">
         <div className="flex items-center gap-4">
           <Link to="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -135,16 +130,10 @@ const Compiler = () => {
             </div>
             <span className="font-semibold hidden sm:inline">CodeJudge AI</span>
           </Link>
-
-          <div className="h-6 w-px bg-border/50 hidden md:block" />
-
-          {/* Coding Timer */}
-          <div className="hidden md:block">
-            <CodingTimer isTyping={isTyping} editorFocused={editorFocused} />
-          </div>
+          <Badge variant="secondary" className="hidden md:inline-flex">
+            AI Review Workspace
+          </Badge>
         </div>
-
-        {/* Right Section - Actions */}
         <div className="flex items-center gap-2">
           <Link to="/">
             <Button variant="ghost" size="sm" className="gap-2 hidden sm:flex">
@@ -152,17 +141,6 @@ const Compiler = () => {
               Home
             </Button>
           </Link>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleFullscreen}
-            className="gap-2 hidden sm:flex"
-          >
-            <Maximize2 className="w-4 h-4" />
-            <span className="hidden sm:inline">Fullscreen</span>
-          </Button>
-
           <Button
             size="sm"
             onClick={handleSubmitCode}
@@ -172,52 +150,49 @@ const Compiler = () => {
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Analyzing...
+                Evaluating...
               </>
             ) : (
               <>
                 <Send className="w-4 h-4" />
-                Submit for AI Review
+                Evaluate using AI
               </>
             )}
           </Button>
         </div>
-      </motion.header>
+      </header>
 
-      {/* Main Content - Embedded OneCompiler Editor */}
-      <div className="flex-1 overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="h-full w-full"
-        >
-          <iframe
-            ref={iframeRef}
-            frameBorder="0"
-            className="w-full h-full"
-            src="https://onecompiler.com/embed/?theme=dark&fontSize=16&listenToEvents=true&codeChangeEvent=true"
-            title="OneCompiler Embedded Editor"
-            allow="clipboard-read; clipboard-write"
-          />
-        </motion.div>
+      <div className="flex-1 p-4 md:p-6 flex flex-col overflow-hidden">
+        <Card className="flex-1 flex flex-col overflow-hidden">
+          <CardHeader className="pb-3 flex-shrink-0">
+            <CardTitle className="text-base flex items-center justify-between gap-3">
+              <span>Code Editor</span>
+              <select
+                value={currentLanguage}
+                onChange={(e) => handleLanguageChange(e.target.value)}
+                className="h-9 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="python">Python</option>
+                <option value="javascript">JavaScript</option>
+                <option value="java">Java</option>
+                <option value="cpp">C++</option>
+              </select>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1 pt-0 pb-4 px-4 overflow-hidden">
+            <div className="h-full w-full overflow-hidden rounded-md border border-input">
+              <Editor
+                height="100%"
+                language={currentLanguage}
+                value={currentCode}
+                theme="vs-dark"
+                options={editorOptions}
+                onChange={(value) => setCurrentCode(value || "")}
+              />
+            </div>
+          </CardContent>
+        </Card>
       </div>
-
-      {/* Status Bar */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.3, delay: 0.3 }}
-        className="h-8 border-t border-border/50 bg-card/80 flex items-center px-4 text-xs text-muted-foreground flex-shrink-0"
-      >
-        <div className="flex items-center gap-2">
-          <Code2 className="w-3 h-3" />
-          <span>CodeJudge AI Compiler</span>
-        </div>
-        <div className="ml-auto flex items-center gap-4">
-          <span>Interactive Compiler with Real-time I/O</span>
-        </div>
-      </motion.div>
     </div>
   );
 };

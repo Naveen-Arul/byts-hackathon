@@ -38,13 +38,13 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Student Login
+                <Link to="/compiler" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  AI Compiler
                 </Link>
               </li>
               <li>
                 <Link to="/compiler" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Online Compiler
+                  AI Review Workspace
                 </Link>
               </li>
             </ul>

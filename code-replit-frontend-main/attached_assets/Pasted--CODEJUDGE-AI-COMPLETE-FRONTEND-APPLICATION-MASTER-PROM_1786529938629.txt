@@ -1,0 +1,2891 @@
+# CODEJUDGE AI — COMPLETE FRONTEND APPLICATION MASTER PROMPT
+
+Build a complete, production-quality frontend web application named **CodeJudge AI**.
+
+CodeJudge AI is an **AI-powered coding evaluation and assessment platform** that combines:
+
+* Online coding workspace
+* AI-powered code evaluation
+* Multi-agent code analysis
+* Automated coding assessments
+* Admin-created coding questions
+* Scheduled student tests
+* Role-based authentication
+* Personalized AI feedback
+* Master AI Judge
+
+The frontend must be designed as a complete application, not just a landing page or compiler page.
+
+---
+
+# 1. CORE PRODUCT CONCEPT
+
+CodeJudge AI has TWO separate user experiences.
+
+## EXPERIENCE A — PUBLIC OPEN COMPILER
+
+Anyone can access:
+
+`/compiler`
+
+without:
+
+* Login
+* Registration
+* Authentication
+* User account
+
+A visitor can:
+
+1. Open CodeJudge AI
+2. Open the public compiler
+3. Select a programming language
+4. Write or paste code
+5. Submit code
+6. AI agents analyze the code
+7. Master Judge generates an evaluation
+8. User sees the complete AI feedback
+
+This is the **Open AI Code Judge**.
+
+---
+
+# EXPERIENCE B — AUTHENTICATED CODING ASSESSMENT
+
+For structured coding assessments, authentication is required.
+
+There are two roles:
+
+## ADMIN
+
+Admin can:
+
+* Login
+* Create coding questions
+* Edit questions
+* Delete questions
+* Add test cases
+* Create assessments
+* Assign questions to assessments
+* Assign assessments to students
+* Schedule tests
+* Set start/end time
+* Set duration
+* View assigned students
+* View submissions
+* View AI evaluation reports
+* View scores
+* View assessment performance
+* Monitor test status
+
+## STUDENT
+
+Student can:
+
+* Register/login
+* View dashboard
+* View assigned assessments
+* View upcoming tests
+* View active tests
+* Attend scheduled tests
+* Open assigned coding questions
+* Write code
+* Run sample code if execution API exists
+* Submit code
+* Receive AI evaluation
+* View score
+* View personalized feedback
+* View previous assessment results
+
+IMPORTANT:
+
+The public `/compiler` must remain accessible without authentication.
+
+The assessment workflow requires authentication.
+
+---
+
+# 2. TECHNOLOGY
+
+Use:
+
+* React
+* TypeScript
+* Vite
+* Tailwind CSS
+* React Router
+* Monaco Editor
+* Lucide React
+* Framer Motion
+* Recharts
+* TanStack Query where useful
+* React Hook Form
+* Zod for frontend validation
+* Sonner for toast notifications
+
+Use clean reusable components.
+
+Do NOT build everything inside a single file.
+
+---
+
+# 3. VISUAL DESIGN
+
+Create a premium modern light-mode SaaS interface.
+
+Design language:
+
+* Frosted glassmorphism
+* Clean white surfaces
+* Soft translucent panels
+* Subtle borders
+* Soft shadows
+* Ambient gradients
+* Rounded cards
+* Premium typography
+* Smooth micro-interactions
+* Developer-focused UI
+* Professional academic assessment interface
+
+The application should look like a combination of:
+
+* Premium developer platform
+* Modern online judge
+* AI code reviewer
+* Technical assessment system
+
+Do NOT make it look like a generic admin template.
+
+---
+
+# 4. COLOR SYSTEM
+
+LIGHT MODE ONLY.
+
+Do not create dark mode.
+
+Do not use purple.
+
+Do not use dark blue/navy.
+
+Primary:
+
+`#0EA5E9`
+
+Success:
+
+`#10B981`
+
+Warning:
+
+`#F59E0B`
+
+Error:
+
+`#EF4444`
+
+Background:
+
+`#FFFFFF`
+
+Secondary background:
+
+`#F8FAFC`
+
+Border:
+
+`#E2E8F0`
+
+Primary text:
+
+`#0F172A`
+
+Secondary text:
+
+`#64748B`
+
+Muted text:
+
+`#94A3B8`
+
+Use gradients very carefully.
+
+Avoid excessive colorful backgrounds.
+
+---
+
+# 5. TYPOGRAPHY
+
+Use:
+
+Inter or Outfit.
+
+For code:
+
+JetBrains Mono / Monaco.
+
+Use strong hierarchy:
+
+Hero:
+
+56–72px
+
+Page headings:
+
+32–44px
+
+Section headings:
+
+22–30px
+
+Card headings:
+
+17–21px
+
+Body:
+
+14–16px
+
+Technical metadata:
+
+12–14px
+
+---
+
+# 6. APPLICATION ROUTING
+
+Create the following route structure.
+
+## PUBLIC ROUTES
+
+`/`
+
+Landing page
+
+`/compiler`
+
+Open public AI compiler
+
+`/how-it-works`
+
+Platform workflow
+
+`/features`
+
+Platform capabilities
+
+`/about`
+
+About CodeJudge AI
+
+`/login`
+
+Authentication
+
+`/register`
+
+Student registration
+
+---
+
+# ADMIN ROUTES
+
+`/admin`
+
+Admin dashboard
+
+`/admin/questions`
+
+Question management
+
+`/admin/questions/create`
+
+Create question
+
+`/admin/questions/:id/edit`
+
+Edit question
+
+`/admin/assessments`
+
+Assessment management
+
+`/admin/assessments/create`
+
+Create assessment
+
+`/admin/assessments/:id`
+
+Assessment details
+
+`/admin/assessments/:id/assign`
+
+Assign students
+
+`/admin/tests`
+
+Scheduled tests
+
+`/admin/submissions`
+
+Submission management
+
+`/admin/submissions/:id`
+
+Submission details
+
+`/admin/results`
+
+Assessment results
+
+---
+
+# STUDENT ROUTES
+
+`/student`
+
+Student dashboard
+
+`/student/assessments`
+
+Assigned assessments
+
+`/student/assessments/:id`
+
+Assessment details
+
+`/student/test/:id`
+
+Active test
+
+`/student/test/:testId/question/:questionId`
+
+Coding question
+
+`/student/submission/:id`
+
+AI evaluation result
+
+`/student/results`
+
+Previous results
+
+---
+
+# 7. AUTHENTICATION MODEL
+
+Create role-based authentication UI.
+
+Roles:
+
+```text
+ADMIN
+STUDENT
+```
+
+The frontend should protect role-specific routes.
+
+Example:
+
+Admin attempting:
+
+`/student`
+
+→ show unauthorized state or redirect.
+
+Student attempting:
+
+`/admin`
+
+→ show unauthorized state or redirect.
+
+Unauthenticated user attempting:
+
+`/admin`
+
+→ redirect to `/login`.
+
+Unauthenticated user attempting:
+
+`/student`
+
+→ redirect to `/login`.
+
+But:
+
+`/compiler`
+
+must remain PUBLIC.
+
+---
+
+# 8. LOGIN PAGE
+
+Create premium glassmorphic login page.
+
+Left side:
+
+CodeJudge AI branding.
+
+Headline:
+
+"Welcome back to intelligent coding."
+
+Description:
+
+"Access your coding assessments, evaluations, and AI-powered feedback."
+
+Right side:
+
+Login form.
+
+Fields:
+
+Email
+
+Password
+
+Remember me
+
+Login button
+
+Forgot password link placeholder
+
+Below:
+
+"Don't have an account?"
+
+"Create Student Account"
+
+IMPORTANT:
+
+Do NOT create admin self-registration.
+
+Admin accounts are assumed to be provisioned by the system.
+
+Provide a role-aware login flow.
+
+---
+
+# 9. REGISTER PAGE
+
+Student registration only.
+
+Fields:
+
+Full Name
+
+Email
+
+Password
+
+Confirm Password
+
+Student ID
+
+Department
+
+Year
+
+Terms checkbox
+
+Create Account
+
+After registration:
+
+Redirect to student dashboard.
+
+Use proper validation.
+
+Show password strength.
+
+---
+
+# 10. PUBLIC LANDING PAGE
+
+Route:
+
+`/`
+
+Hero:
+
+# "Your Code Deserves More Than Pass or Fail."
+
+Supporting text:
+
+"CodeJudge AI uses intelligent multi-agent analysis to evaluate code for correctness, complexity, security, robustness, and quality."
+
+Primary CTA:
+
+"Try Open AI Code Judge"
+
+Secondary CTA:
+
+"Explore Assessments"
+
+Add a small badge:
+
+"AI-Powered Multi-Agent Coding Evaluation"
+
+---
+
+# 11. LANDING PAGE — PUBLIC COMPILER
+
+Create a section:
+
+## "Analyze Code Without Creating an Account"
+
+Explain:
+
+"Quickly evaluate your code using our public AI-powered compiler. No login required."
+
+CTA:
+
+"Open Free Compiler"
+
+---
+
+# 12. LANDING PAGE — ASSESSMENT PLATFORM
+
+Create section:
+
+## "Structured Coding Assessments"
+
+Explain:
+
+"Educators and administrators can create coding assessments, assign questions, schedule tests, and review AI-powered student evaluations."
+
+Two cards:
+
+Admin
+
+"Create and manage assessments."
+
+Student
+
+"Attend assessments and receive personalized feedback."
+
+---
+
+# 13. LANDING PAGE — NINE AI AGENTS
+
+Show:
+
+## "Nine Specialized AI Agents"
+
+Agents:
+
+1. Intent Detection
+2. Logic Evaluation
+3. Test Case Generation
+4. Complexity Analysis
+5. Hardcoding Detection
+6. Security & Safety
+7. Adversarial Testing
+8. Explanation Analysis
+9. Feedback Synthesis
+
+Then:
+
+## Master Judge
+
+The Master Judge combines the agent findings and produces the final evaluation.
+
+IMPORTANT:
+
+The current agent architecture contains these specialized agents. Represent them accurately.
+
+---
+
+# 14. LANDING PAGE — HOW IT WORKS
+
+Show:
+
+User Code
+
+↓
+
+AI Code Understanding
+
+↓
+
+Parallel Specialized Agents
+
+↓
+
+Feedback Synthesis
+
+↓
+
+Master Judge
+
+↓
+
+Evaluation Report
+
+For assessments:
+
+Admin Creates Assessment
+
+↓
+
+Questions Assigned
+
+↓
+
+Students Attend Scheduled Test
+
+↓
+
+Student Submits Code
+
+↓
+
+AI Evaluation
+
+↓
+
+Results
+
+---
+
+# 15. PUBLIC COMPILER
+
+Route:
+
+`/compiler`
+
+This is available to everyone.
+
+Show badge:
+
+"PUBLIC • NO LOGIN REQUIRED"
+
+Header:
+
+# "Open AI Code Judge"
+
+Subtitle:
+
+"Write or paste code and get an intelligent AI-powered evaluation."
+
+---
+
+# 16. COMPILER UI
+
+Create a professional IDE-style layout.
+
+Top toolbar:
+
+Language
+
+Python
+
+Java
+
+JavaScript
+
+C++
+
+C
+
+C#
+
+Go
+
+Rust
+
+Editor controls:
+
+Format
+
+Copy
+
+Reset
+
+Settings
+
+Character count
+
+Main editor:
+
+Monaco Editor
+
+Light VS theme.
+
+Features:
+
+* Line numbers
+* Syntax highlighting
+* Bracket matching
+* Auto indentation
+* Code folding
+* Minimap
+* Search
+* Replace
+
+---
+
+# 17. PUBLIC COMPILER ACTIONS
+
+Primary:
+
+`Evaluate Code with AI`
+
+Secondary:
+
+`Clear`
+
+If an actual code execution API is available:
+
+`Run`
+
+If no execution API exists:
+
+DO NOT create a fake Run functionality.
+
+The Stage 1 AI system should focus on:
+
+Code
+
+→ AI Agents
+
+→ Evaluation
+
+---
+
+# 18. PUBLIC COMPILER RESULT
+
+After evaluation:
+
+Redirect to:
+
+`/review-results`
+
+Display:
+
+Overall Score
+
+Verdict
+
+Confidence
+
+AI-Inferred Problem
+
+Logic
+
+Complexity
+
+Test Cases
+
+Hardcoding
+
+Security
+
+Adversarial Analysis
+
+Code Quality
+
+Explanation Analysis
+
+Personalized Feedback
+
+Master Judge
+
+---
+
+# 19. ADMIN DASHBOARD
+
+Route:
+
+`/admin`
+
+Create a premium admin workspace.
+
+Header:
+
+"Admin Dashboard"
+
+Subtitle:
+
+"Manage coding assessments and monitor AI-powered evaluations."
+
+Top metrics:
+
+Total Questions
+
+Active Assessments
+
+Scheduled Tests
+
+Total Students
+
+Submissions
+
+Average Score
+
+AI Evaluations
+
+---
+
+# 20. ADMIN DASHBOARD CONTENT
+
+Create sections:
+
+Upcoming Tests
+
+Recent Submissions
+
+Assessment Performance
+
+Recent Questions
+
+Quick Actions
+
+Quick Actions:
+
+Create Question
+
+Create Assessment
+
+Schedule Test
+
+View Submissions
+
+---
+
+# 21. ADMIN SIDEBAR
+
+Admin sidebar:
+
+Dashboard
+
+Question Bank
+
+Assessments
+
+Scheduled Tests
+
+Students
+
+Submissions
+
+Results
+
+Analytics
+
+Settings
+
+Logout
+
+Keep the sidebar clean.
+
+Use Lucide icons.
+
+---
+
+# 22. QUESTION BANK
+
+Route:
+
+`/admin/questions`
+
+Create question management page.
+
+Header:
+
+"Question Bank"
+
+Actions:
+
+Create Question
+
+Search
+
+Filter
+
+Sort
+
+Question table:
+
+Question Title
+
+Difficulty
+
+Topic
+
+Language
+
+Created Date
+
+Used In Assessments
+
+Status
+
+Actions
+
+Actions:
+
+View
+
+Edit
+
+Duplicate
+
+Delete
+
+---
+
+# 23. CREATE QUESTION
+
+Route:
+
+`/admin/questions/create`
+
+Create a professional question creation interface.
+
+Fields:
+
+Question Title
+
+Problem Statement
+
+Difficulty
+
+Easy
+
+Medium
+
+Hard
+
+Topic
+
+Algorithms / Data Structures
+
+Supported Languages
+
+Python
+
+Java
+
+C++
+
+JavaScript
+
+C#
+
+Go
+
+Input Description
+
+Output Description
+
+Constraints
+
+Examples
+
+Sample Input
+
+Sample Output
+
+Explanation
+
+Tags
+
+---
+
+# 24. TEST CASE MANAGEMENT
+
+Inside question creation:
+
+Create test case section.
+
+Fields:
+
+Input
+
+Expected Output
+
+Test Type
+
+Sample
+
+Hidden
+
+Edge Case
+
+Add Test Case
+
+Delete Test Case
+
+Edit Test Case
+
+Show count:
+
+"5 test cases"
+
+"2 sample"
+
+"3 hidden"
+
+IMPORTANT:
+
+Hidden test cases should NOT be exposed to students.
+
+---
+
+# 25. QUESTION PREVIEW
+
+Provide:
+
+"Preview Question"
+
+Show exactly how students will see it.
+
+Preview includes:
+
+Title
+
+Description
+
+Input
+
+Output
+
+Constraints
+
+Examples
+
+Code editor preview
+
+---
+
+# 26. ASSESSMENT CREATION
+
+Route:
+
+`/admin/assessments/create`
+
+Title:
+
+"Create Assessment"
+
+Fields:
+
+Assessment Name
+
+Description
+
+Instructions
+
+Duration
+
+Start Date
+
+Start Time
+
+End Date
+
+End Time
+
+Maximum Attempts
+
+Allowed Languages
+
+Question Selection
+
+---
+
+# 27. QUESTION ASSIGNMENT
+
+Admin can select questions from Question Bank.
+
+Show:
+
+Question
+
+Difficulty
+
+Topic
+
+Marks
+
+Estimated Time
+
+Checkbox
+
+Allow selecting multiple questions.
+
+Show summary:
+
+Selected Questions: 5
+
+Total Marks: 100
+
+Estimated Duration: 60 minutes
+
+---
+
+# 28. ASSESSMENT SETTINGS
+
+Settings:
+
+Duration
+
+Start Time
+
+End Time
+
+Randomize Questions
+
+Allow Multiple Attempts
+
+Show Results Immediately
+
+Allow AI Feedback
+
+Allow Code Explanation
+
+Require Explanation
+
+Prevent Submission After Time
+
+---
+
+# 29. ASSIGN STUDENTS
+
+Route:
+
+`/admin/assessments/:id/assign`
+
+Show student list.
+
+Columns:
+
+Student Name
+
+Student ID
+
+Department
+
+Year
+
+Email
+
+Assignment Status
+
+Checkbox
+
+Actions:
+
+Select All
+
+Assign Selected
+
+Remove Selected
+
+---
+
+# 30. SCHEDULED TESTS
+
+Admin page:
+
+`/admin/tests`
+
+Cards:
+
+Upcoming
+
+Active
+
+Completed
+
+Cancelled
+
+Each test card:
+
+Assessment Name
+
+Date
+
+Start Time
+
+End Time
+
+Duration
+
+Students Assigned
+
+Questions
+
+Status
+
+Actions:
+
+View
+
+Edit
+
+Cancel
+
+---
+
+# 31. STUDENT DASHBOARD
+
+Route:
+
+`/student`
+
+Header:
+
+"Welcome back, [Student Name]"
+
+Subtitle:
+
+"Ready for your next coding challenge?"
+
+Metrics:
+
+Upcoming Assessments
+
+Completed Tests
+
+Average Score
+
+Best Score
+
+AI Feedback Received
+
+---
+
+# 32. STUDENT DASHBOARD SECTIONS
+
+Upcoming Tests
+
+Active Test
+
+Recent Results
+
+Recommended Practice
+
+Performance Overview
+
+Upcoming assessment card:
+
+Assessment Name
+
+Number of Questions
+
+Duration
+
+Start Time
+
+End Time
+
+Status
+
+CTA:
+
+"View Assessment"
+
+---
+
+# 33. STUDENT ASSESSMENTS
+
+Route:
+
+`/student/assessments`
+
+Tabs:
+
+Upcoming
+
+Active
+
+Completed
+
+Show cards.
+
+Upcoming:
+
+"Starts in 2h 15m"
+
+Active:
+
+"Test is live"
+
+Completed:
+
+"View Result"
+
+---
+
+# 34. ASSESSMENT DETAILS
+
+Route:
+
+`/student/assessments/:id`
+
+Show:
+
+Assessment Title
+
+Description
+
+Instructions
+
+Duration
+
+Number of Questions
+
+Total Marks
+
+Start Time
+
+End Time
+
+Allowed Languages
+
+Rules
+
+Questions
+
+CTA depending on time:
+
+Before start:
+
+"Test Not Started"
+
+During window:
+
+"Start Assessment"
+
+After end:
+
+"Assessment Closed"
+
+---
+
+# 35. START ASSESSMENT
+
+Before entering test, show confirmation screen.
+
+Title:
+
+"Ready to Begin?"
+
+Show:
+
+Duration
+
+Number of Questions
+
+Rules
+
+Warning:
+
+"Once the assessment begins, the timer will start."
+
+Button:
+
+"Start Assessment"
+
+---
+
+# 36. ACTIVE TEST INTERFACE
+
+Route:
+
+`/student/test/:id`
+
+Create a professional exam workspace.
+
+Top bar:
+
+Assessment Name
+
+Timer
+
+Progress
+
+Submit Assessment
+
+Left:
+
+Question navigator.
+
+Example:
+
+Question 1
+
+Question 2
+
+Question 3
+
+Question 4
+
+Question 5
+
+States:
+
+Not Visited
+
+Visited
+
+Answered
+
+Marked
+
+Current
+
+---
+
+# 37. QUESTION CODING INTERFACE
+
+Route:
+
+`/student/test/:testId/question/:questionId`
+
+Layout:
+
+Left:
+
+Problem statement
+
+Right:
+
+Monaco code editor
+
+Problem section:
+
+Title
+
+Description
+
+Input
+
+Output
+
+Constraints
+
+Examples
+
+Bottom:
+
+Previous
+
+Next
+
+Submit Code
+
+---
+
+# 38. TEST TIMER
+
+Show countdown:
+
+59:42
+
+Use warning state when time is low.
+
+At:
+
+10 minutes:
+
+Amber
+
+5 minutes:
+
+Coral
+
+Do not make timer excessively distracting.
+
+---
+
+# 39. STUDENT CODE SUBMISSION
+
+When student submits:
+
+Show confirmation modal:
+
+"Submit this solution?"
+
+Display:
+
+Question
+
+Language
+
+Code saved
+
+Buttons:
+
+Cancel
+
+Submit
+
+---
+
+# 40. AI EVALUATION DURING ASSESSMENT
+
+After submission:
+
+Show:
+
+"AI Evaluation in Progress"
+
+Do NOT expose hidden test cases.
+
+Show evaluation stages:
+
+Understanding Code
+
+Logic Evaluation
+
+Edge Case Analysis
+
+Complexity Analysis
+
+Security Analysis
+
+Adversarial Analysis
+
+Feedback Synthesis
+
+Master Judge
+
+---
+
+# 41. STUDENT RESULT PAGE
+
+Route:
+
+`/student/submission/:id`
+
+Show:
+
+Assessment Name
+
+Question
+
+Score
+
+Verdict
+
+AI Confidence
+
+---
+
+# 42. STUDENT FEEDBACK
+
+Display:
+
+Logic Evaluation
+
+Complexity
+
+Code Quality
+
+Edge Cases
+
+Security
+
+Hardcoding
+
+Adversarial Findings
+
+Personalized Feedback
+
+Recommended Improvements
+
+---
+
+# 43. IMPORTANT ASSESSMENT VS PUBLIC COMPILER DIFFERENCE
+
+Public compiler:
+
+No login.
+
+No assessment.
+
+No assigned question.
+
+No timer.
+
+No student identity.
+
+User submits arbitrary code.
+
+AI must infer the likely problem.
+
+Assessment:
+
+Login required.
+
+Question is explicitly provided.
+
+Question comes from admin-created Question Bank.
+
+Student is assigned the assessment.
+
+Timer is active.
+
+Submission belongs to the student.
+
+AI evaluates code against the provided problem context.
+
+This distinction must be visible in the UX.
+
+---
+
+# 44. AI AGENT ARCHITECTURE DISPLAY
+
+Create a technical visualization page.
+
+Show:
+
+INPUT
+
+Student Code
+
+Problem Context
+
+Student Explanation
+
+↓
+
+LANGGRAPH ORCHESTRATION
+
+↓
+
+Parallel Evaluation Agents
+
+Intent
+
+Logic
+
+Test Cases
+
+Complexity
+
+Hardcoding
+
+Security
+
+Adversarial
+
+Explanation
+
+↓
+
+Feedback Synthesis
+
+↓
+
+Master Judge
+
+↓
+
+FINAL REPORT
+
+---
+
+# 45. RESULTS PAGE — FULL REPORT
+
+Create a sophisticated report.
+
+Top:
+
+Overall Score
+
+Verdict
+
+Confidence
+
+Language
+
+Problem
+
+Then:
+
+## AI-Inferred Problem
+
+For public compiler.
+
+For assessments:
+
+## Assigned Problem
+
+Do NOT say "inferred" if an admin-provided problem exists.
+
+---
+
+# 46. SCORE BREAKDOWN
+
+Show:
+
+Logic Correctness
+
+Algorithmic Efficiency
+
+Edge Case Robustness
+
+Code Quality
+
+Security
+
+Explanation Consistency
+
+Overall Score
+
+Use charts and progress bars.
+
+---
+
+# 47. LOGIC ANALYSIS
+
+Show:
+
+Correctness
+
+Confidence
+
+Strengths
+
+Issues
+
+Evidence
+
+Potential Failure Scenarios
+
+---
+
+# 48. TEST CASE ANALYSIS
+
+Show:
+
+Covered Cases
+
+Missing Cases
+
+Edge Cases
+
+Critical Cases
+
+Risk Level
+
+---
+
+# 49. COMPLEXITY
+
+Show:
+
+Current Time Complexity
+
+Current Space Complexity
+
+Worst Case
+
+Best Case
+
+Optimized Approach
+
+Comparison table.
+
+---
+
+# 50. HARDCODING
+
+Show:
+
+Hardcoding Status
+
+Detection Confidence
+
+Evidence
+
+Severity
+
+Recommendation
+
+---
+
+# 51. SECURITY
+
+Show:
+
+Security Score
+
+Risk
+
+Issues
+
+Evidence
+
+Recommendations
+
+---
+
+# 52. ADVERSARIAL ANALYSIS
+
+Show:
+
+Robustness Score
+
+Potential Failure Cases
+
+Boundary Conditions
+
+Adversarial Scenarios
+
+---
+
+# 53. EXPLANATION ANALYSIS
+
+If student explanation is required in assessment:
+
+Show:
+
+Explanation
+
+Implementation
+
+Consistency Score
+
+Matched Concepts
+
+Mismatch
+
+Missing Concepts
+
+If no explanation exists:
+
+"No explanation provided."
+
+---
+
+# 54. FEEDBACK SYNTHESIS
+
+Show:
+
+Overall Feedback
+
+Strengths
+
+Weaknesses
+
+Improvement Areas
+
+Recommended Topics
+
+Interview Advice
+
+---
+
+# 55. MASTER JUDGE
+
+Make this visually prominent.
+
+Show:
+
+Final Score
+
+Verdict
+
+Confidence
+
+Final Reasoning
+
+Critical Issues
+
+Strong Points
+
+Recommended Action
+
+Example verdicts:
+
+Excellent
+
+Very Good
+
+Good
+
+Needs Improvement
+
+Poor
+
+---
+
+# 56. ADMIN SUBMISSIONS
+
+Route:
+
+`/admin/submissions`
+
+Table:
+
+Student
+
+Assessment
+
+Question
+
+Submitted At
+
+Language
+
+Score
+
+Verdict
+
+AI Confidence
+
+Status
+
+Actions:
+
+View
+
+---
+
+# 57. ADMIN SUBMISSION DETAIL
+
+Show:
+
+Student Information
+
+Assessment
+
+Question
+
+Submitted Code
+
+Language
+
+Submission Time
+
+AI Evaluation
+
+Agent Insights
+
+Master Judge
+
+Final Score
+
+Feedback
+
+---
+
+# 58. ADMIN RESULTS
+
+Route:
+
+`/admin/results`
+
+Show analytics.
+
+Charts:
+
+Score Distribution
+
+Average Score by Assessment
+
+Question Difficulty Performance
+
+Student Performance
+
+Agent Evaluation Distribution
+
+Use Recharts.
+
+Filters:
+
+Assessment
+
+Date
+
+Department
+
+Difficulty
+
+---
+
+# 59. ADMIN ANALYTICS
+
+Show:
+
+Average Score
+
+Highest Score
+
+Lowest Score
+
+Completion Rate
+
+Average Submission Time
+
+Most Failed Questions
+
+Most Common Code Issues
+
+Most Common Complexity Issues
+
+Most Common Security Issues
+
+AI Feedback Categories
+
+---
+
+# 60. STUDENT RESULTS HISTORY
+
+Route:
+
+`/student/results`
+
+Show completed assessments.
+
+Columns:
+
+Assessment
+
+Date
+
+Score
+
+Grade
+
+Verdict
+
+AI Confidence
+
+Action
+
+View Result
+
+---
+
+# 61. FRONTEND STATE MANAGEMENT
+
+Use clean application state.
+
+Authentication state:
+
+Unauthenticated
+
+Student
+
+Admin
+
+Assessment state:
+
+Upcoming
+
+Active
+
+Completed
+
+Expired
+
+Evaluation state:
+
+Idle
+
+Submitting
+
+Analyzing
+
+Success
+
+Error
+
+---
+
+# 62. API ARCHITECTURE
+
+Frontend should communicate with backend APIs.
+
+Use:
+
+`VITE_API_BASE_URL`
+
+Never expose LLM API keys.
+
+Never call Groq/NVIDIA/Gemini/OpenRouter directly from frontend.
+
+All AI requests go through backend.
+
+---
+
+# 63. API ENDPOINT PLACEHOLDERS
+
+Public:
+
+GET `/health`
+
+POST `/evaluate`
+
+Authentication:
+
+POST `/auth/login`
+
+POST `/auth/register`
+
+GET `/auth/me`
+
+Admin:
+
+GET `/admin/questions`
+
+POST `/admin/questions`
+
+PUT `/admin/questions/:id`
+
+DELETE `/admin/questions/:id`
+
+GET `/admin/assessments`
+
+POST `/admin/assessments`
+
+PUT `/admin/assessments/:id`
+
+POST `/admin/assessments/:id/assign`
+
+GET `/admin/submissions`
+
+GET `/admin/results`
+
+Student:
+
+GET `/student/assessments`
+
+GET `/student/assessments/:id`
+
+POST `/student/assessments/:id/start`
+
+GET `/student/test/:id`
+
+POST `/student/submissions`
+
+GET `/student/submissions/:id`
+
+GET `/student/results`
+
+These can initially be mocked with frontend data if backend endpoints are not yet available.
+
+Create a clean API service layer so real backend integration can replace mocks later without rewriting UI components.
+
+---
+
+# 64. AUTHENTICATION UX
+
+Store authentication state safely.
+
+Use protected routes.
+
+Create:
+
+ProtectedRoute
+
+RoleProtectedRoute
+
+AdminRoute
+
+StudentRoute
+
+Example:
+
+Admin:
+
+`/admin/*`
+
+Student:
+
+`/student/*`
+
+Public:
+
+`/compiler`
+
+---
+
+# 65. ERROR HANDLING
+
+Create polished error states for:
+
+401 Unauthorized
+
+403 Forbidden
+
+404 Not Found
+
+408 Timeout
+
+429 Rate Limited
+
+500 Server Error
+
+Network Error
+
+AI Evaluation Failure
+
+Malformed AI Response
+
+Show friendly UI.
+
+Never expose:
+
+API keys
+
+stack traces
+
+internal errors
+
+provider credentials
+
+---
+
+# 66. LOADING STATES
+
+Every major page needs proper loading UI.
+
+Use:
+
+Skeleton cards
+
+Skeleton tables
+
+Animated editor loading
+
+AI evaluation progress
+
+Do not show blank screens.
+
+---
+
+# 67. RESPONSIVE DESIGN
+
+Fully responsive.
+
+Desktop:
+
+Professional dashboard.
+
+Tablet:
+
+Collapsible navigation.
+
+Mobile:
+
+Bottom/side navigation where appropriate.
+
+Compiler:
+
+Editor remains usable.
+
+Assessment:
+
+Question panel and editor stack appropriately.
+
+Admin tables:
+
+Become responsive cards or horizontal scrolling.
+
+---
+
+# 68. ACCESSIBILITY
+
+Use:
+
+Semantic HTML
+
+ARIA labels
+
+Keyboard navigation
+
+Visible focus states
+
+Accessible forms
+
+Proper labels
+
+Good contrast
+
+Keyboard-friendly Monaco editor controls
+
+Do not rely only on color.
+
+---
+
+# 69. EMPTY STATES
+
+Create beautiful empty states.
+
+Examples:
+
+No assessments:
+
+"No assessments assigned yet."
+
+No questions:
+
+"Your question bank is empty."
+
+No submissions:
+
+"No submissions yet."
+
+No results:
+
+"Complete an assessment to see your performance."
+
+No AI result:
+
+"Submit code to generate an AI evaluation."
+
+---
+
+# 70. NOTIFICATIONS
+
+Use Sonner.
+
+Examples:
+
+"Question created successfully."
+
+"Assessment scheduled."
+
+"Students assigned."
+
+"Code submitted."
+
+"AI evaluation completed."
+
+"Evaluation failed."
+
+"Changes saved."
+
+"Assessment cancelled."
+
+---
+
+# 71. MODALS
+
+Create reusable modal system.
+
+Use for:
+
+Delete question
+
+Delete assessment
+
+Submit test
+
+Cancel test
+
+Assign students
+
+Schedule assessment
+
+Logout
+
+---
+
+# 72. DESIGN THE ADMIN UI DIFFERENTLY FROM STUDENT UI
+
+Admin:
+
+Data-focused.
+
+Dense but clean.
+
+Tables.
+
+Charts.
+
+Filters.
+
+Management controls.
+
+Student:
+
+Learning-focused.
+
+Friendly.
+
+Clear.
+
+Assessment cards.
+
+Progress.
+
+Feedback.
+
+Scores.
+
+The public compiler:
+
+Developer-focused.
+
+Editor-first.
+
+Minimal distractions.
+
+---
+
+# 73. PUBLIC COMPILER VS ASSESSMENT EDITOR
+
+Do not make these identical.
+
+Public compiler:
+
+"Open AI Code Judge"
+
+No question provided.
+
+AI infers problem.
+
+No timer.
+
+No authentication.
+
+Assessment editor:
+
+"Assessment Workspace"
+
+Problem statement shown.
+
+Timer.
+
+Question navigation.
+
+Student identity.
+
+Submission tracking.
+
+Explicit problem context.
+
+---
+
+# 74. SECURITY UX
+
+Never display:
+
+LLM API keys
+
+Backend credentials
+
+JWT secrets
+
+Environment variables
+
+Internal agent prompts
+
+Admin-only hidden test cases
+
+Sensitive student information to other students.
+
+---
+
+# 75. COMPONENT ARCHITECTURE
+
+Use reusable components such as:
+
+components/
+
+layout/
+
+Navbar
+
+Footer
+
+Sidebar
+
+MobileNav
+
+GlassCard
+
+PageHeader
+
+Modal
+
+Toast
+
+ScoreCard
+
+StatusBadge
+
+Button
+
+forms/
+
+Input
+
+Select
+
+Textarea
+
+DatePicker
+
+TimePicker
+
+Checkbox
+
+compiler/
+
+CodeEditor
+
+EditorToolbar
+
+LanguageSelector
+
+CodeActions
+
+EvaluationProgress
+
+assessment/
+
+AssessmentCard
+
+QuestionNavigator
+
+TestTimer
+
+QuestionPanel
+
+SubmissionModal
+
+results/
+
+ScoreHero
+
+ScoreBreakdown
+
+LogicAnalysis
+
+ComplexityAnalysis
+
+TestCaseAnalysis
+
+SecurityAnalysis
+
+HardcodingAnalysis
+
+AdversarialAnalysis
+
+ExplanationAnalysis
+
+AgentInsights
+
+FeedbackSection
+
+MasterJudge
+
+admin/
+
+QuestionTable
+
+AssessmentTable
+
+StudentTable
+
+SubmissionTable
+
+AnalyticsCards
+
+charts/
+
+ScoreDistribution
+
+PerformanceChart
+
+ScoreTrend
+
+---
+
+# 76. UX PRINCIPLE
+
+Every page should answer:
+
+"What can the user do here?"
+
+Avoid unnecessary visual decoration.
+
+Do not make every card huge.
+
+Do not fill empty space with fake content.
+
+Use realistic sample data only for development previews.
+
+Clearly distinguish demo/mock data from real backend data.
+
+---
+
+# 77. IMPORTANT AI EVALUATION RULE
+
+For PUBLIC COMPILER:
+
+If there is no problem statement:
+
+AI should infer a likely task.
+
+Display:
+
+"AI-Inferred Programming Task"
+
+and inference confidence.
+
+If confidence is low:
+
+"Unable to confidently infer the original problem."
+
+Never fabricate certainty.
+
+For AUTHENTICATED ASSESSMENT:
+
+The problem statement comes from the administrator.
+
+Display:
+
+"Assigned Problem"
+
+Do not use inference wording.
+
+---
+
+# 78. FINAL MASTER USER FLOWS
+
+## PUBLIC FLOW
+
+Visitor
+
+↓
+
+Landing
+
+↓
+
+Try AI Code Judge
+
+↓
+
+Public Compiler
+
+↓
+
+Write Code
+
+↓
+
+Evaluate Code with AI
+
+↓
+
+AI Analysis
+
+↓
+
+Master Judge
+
+↓
+
+Results
+
+↓
+
+Analyze Another Code
+
+## ADMIN FLOW
+
+Admin Login
+
+↓
+
+Admin Dashboard
+
+↓
+
+Create Question
+
+↓
+
+Add Test Cases
+
+↓
+
+Save Question
+
+↓
+
+Create Assessment
+
+↓
+
+Select Questions
+
+↓
+
+Set Duration
+
+↓
+
+Set Schedule
+
+↓
+
+Assign Students
+
+↓
+
+Publish Assessment
+
+↓
+
+Monitor Submissions
+
+↓
+
+View AI Results
+
+↓
+
+Analyze Performance
+
+## STUDENT FLOW
+
+Student Register/Login
+
+↓
+
+Student Dashboard
+
+↓
+
+View Assigned Assessment
+
+↓
+
+View Schedule
+
+↓
+
+Assessment Details
+
+↓
+
+Start Assessment
+
+↓
+
+Timer Starts
+
+↓
+
+Read Question
+
+↓
+
+Write Code
+
+↓
+
+Submit
+
+↓
+
+AI Evaluation
+
+↓
+
+Master Judge
+
+↓
+
+Score + Feedback
+
+↓
+
+View Results
+
+---
+
+# 79. FINAL PRODUCT QUALITY
+
+The generated application must feel like a real software product.
+
+It must be:
+
+* Modern
+* Professional
+* Responsive
+* Accessible
+* Consistent
+* Fast
+* Clean
+* Technical
+* Educational
+* AI-focused
+* Developer-focused
+
+Do not create a simple CRUD dashboard.
+
+Do not create a generic template.
+
+Do not make every page visually identical.
+
+Create a cohesive CodeJudge AI design system across:
+
+Public website
+
+Public compiler
+
+Authentication
+
+Admin platform
+
+Student platform
+
+Assessment workspace
+
+AI evaluation experience
+
+Results dashboard
+
+Analytics
+
+---
+
+# 80. FINAL BRAND MESSAGE
+
+CodeJudge AI should communicate this idea throughout the product:
+
+Traditional judges ask:
+
+"Did your code pass the test?"
+
+CodeJudge AI asks:
+
+"Does your code actually solve the problem?"
+
+The system evaluates:
+
+Understand
+
+Analyze
+
+Challenge
+
+Judge
+
+Explain
+
+Improve
+
+The final experience should make the user feel that CodeJudge AI is not merely a compiler.
+
+It is an:
+
+**AI Coding Evaluator + AI Code Reviewer + AI Mentor + Automated Assessment Platform.**
+
+Build the complete frontend application with all pages, routes, navigation, authentication flows, admin workflows, student workflows, public compiler, assessment system, Monaco editor, AI evaluation states, results pages, analytics, responsive layouts, reusable components, API service layer, mock data support, validation, error handling, loading states, and polished UI/UX.
+
+Do not omit any major page or workflow described above.
