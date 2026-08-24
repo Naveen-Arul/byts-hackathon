@@ -75,7 +75,7 @@ async def health():
 @app.post("/api/evaluate")
 async def evaluate_code(payload: EvaluationRequest):
     t0 = time.perf_counter()
-    code_text = payload.code.strip()
+    code_text = (payload.student_code or "").strip()
     if not code_text:
         raise HTTPException(status_code=400, detail="Code submission cannot be empty.")
 
@@ -84,8 +84,8 @@ async def evaluate_code(payload: EvaluationRequest):
         try:
             # Check if Part 2 and Part 3 microservices are active on ports 5001 and 5002
             p2_check, p3_check = await asyncio.gather(
-                client.get("http://localhost:5001/health"),
-                client.get("http://localhost:5002/health"),
+                client.get("http://localhost:5001/health", timeout=2.0),
+                client.get("http://localhost:5002/health", timeout=2.0),
                 return_exceptions=True,
             )
 
@@ -157,12 +157,12 @@ async def evaluate_code(payload: EvaluationRequest):
                 return build_evaluation_response(
                     final_result,
                     payload.language,
-                    code_text[:100],
+                    False,
                     inferred_problem=inferred,
                     agent_outputs=agent_outputs,
                 )
         except Exception as exc:
-            log.warning("Microservices not reachable or errored: %s. Falling back to internal graph.", exc)
+            log.warning("Microservices not reachable or errored: %s. Falling back to internal graph.", exc, exc_info=True)
 
     # Fallback: run inside single process workflow
     log.info("[Single-Process Workflow] Fallback graph execution...")
@@ -191,7 +191,7 @@ async def evaluate_code(payload: EvaluationRequest):
     return build_evaluation_response(
         final_result,
         payload.language,
-        code_text[:100],
+        False,
         inferred_problem=inferred_problem,
         agent_outputs=agent_outputs,
     )
