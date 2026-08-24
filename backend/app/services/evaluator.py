@@ -58,7 +58,7 @@ def reset_ollama_circuit_breaker():
     _ollama_circuit_broken = False
 
 
-def invoke_ollama(system_prompt: str, user_prompt: str, timeout: int = 5) -> str:
+def invoke_ollama(system_prompt: str, user_prompt: str, timeout: int = 90) -> str:
     url = f"{OLLAMA_BASE_URL.rstrip('/')}/api/chat"
     payload = {
         "model": OLLAMA_MODEL,
@@ -93,7 +93,6 @@ def invoke_json_agent(
     agent_name: str = "unknown",
     **variables: Any,
 ) -> dict[str, Any]:
-    global _ollama_circuit_broken
     step = _agent_index(agent_name)
     step_str = f"{step}" if step else "?"
 
@@ -109,17 +108,16 @@ def invoke_json_agent(
     content = ""
     last_exception = None
 
-    # Step 1: Attempt local Ollama primary if enabled and circuit is unbroken
-    if USE_OLLAMA_PRIMARY and not _ollama_circuit_broken:
+    # Step 1: Attempt local Ollama primary if enabled
+    if USE_OLLAMA_PRIMARY:
         try:
-            log.info("  |-- [%s] Attempting local Ollama (%s, 5s timeout)...", agent_name, OLLAMA_MODEL)
-            content = invoke_ollama(system_prompt, rendered_user_prompt, timeout=5)
+            log.info("  |-- [%s] Invoking local Ollama (%s, 90s timeout)...", agent_name, OLLAMA_MODEL)
+            content = invoke_ollama(system_prompt, rendered_user_prompt, timeout=90)
             log.info("  |-- [%s] Ollama succeeded!", agent_name)
         except Exception as exc:
-            _ollama_circuit_broken = True
             last_exception = exc
             log.warning(
-                "  |-- [%s] Ollama slow/unavailable (%s). Fast circuit breaker tripped! Bypassing Ollama for Groq cloud API...",
+                "  |-- [%s] Ollama call failed/timed out (%s). Falling back to backup LLM...",
                 agent_name, exc
             )
 

@@ -8,10 +8,10 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path=Path(__file__).resolve().parents[2] / ".env")
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant").strip()
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile").strip()
 _groq_backup_env = os.getenv(
     "GROQ_BACKUP_MODELS",
-    "llama-3.1-8b-instant,llama-3.3-70b-versatile,openai/gpt-oss-120b,openai/gpt-oss-20b",
+    "llama-3.3-70b-versatile,llama3-70b-8192,llama3-8b-8192,gemma2-9b-it",
 )
 GROQ_BACKUP_MODELS = [m.strip() for m in _groq_backup_env.split(",") if m.strip()]
 

@@ -200,12 +200,11 @@ def parse_json_object(content: str, agent_name: str = "unknown") -> dict[str, An
     except (ValueError, json.JSONDecodeError):
         pass
 
-    # All strategies failed — log raw content so you can see what the LLM returned
-    log.error(
-        "[%s] All JSON parse strategies failed. Returning {}.\n"
-        "Raw LLM output (first 600 chars):\n%s",
-        agent_name, content[:600],
-    )
+    # Strategy 6: Raw text fallback — wrap unparseable non-empty text so content is never lost
+    if content and content.strip():
+        log.warning("[%s] Non-JSON string output received. Wrapping into summary field.", agent_name)
+        return {"summary": content.strip()}
+
     return {}
 
 

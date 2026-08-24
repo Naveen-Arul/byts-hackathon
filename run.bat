@@ -1,49 +1,27 @@
 @echo off
-TITLE CodeJudge AI Launcher
+TITLE CodeJudge AI Platform Launcher
 CLS
 
-ECHO ===================================================
-ECHO       🚀 Starting CodeJudge AI Platform 🚀
-ECHO ===================================================
-ECHO.
+echo ===================================================
+echo          Starting CodeJudge AI Platform
+echo ===================================================
+echo.
 
-:: Check Python availability
-python --version >nul 2>&1
-IF %ERRORLEVEL% NEQ 0 (
-    ECHO [ERROR] Python is not installed or not in PATH!
-    PAUSE
-    EXIT /B 1
-)
+echo [1/3] Starting Local Ollama Model (qwen2.5-coder:7b)...
+start "CodeJudge AI - Ollama" cmd /k "ollama run qwen2.5-coder:7b"
 
-:: Check npm availability
-npm --version >nul 2>&1
-IF %ERRORLEVEL% NEQ 0 (
-    ECHO [ERROR] Node.js/npm is not installed or not in PATH!
-    PAUSE
-    EXIT /B 1
-)
+echo [2/3] Starting Backend Server (Python FastAPI on port 5000)...
+start "CodeJudge AI - Backend" cmd /k "cd /d %~dp0backend && python main.py"
 
-:: Check Ollama availability & launch model
-ollama --version >nul 2>&1
-IF %ERRORLEVEL% NEQ 0 (
-    ECHO [WARNING] Ollama is not found in PATH! Skipping local Ollama startup.
-) ELSE (
-    ECHO [1/3] Starting Local Ollama Model (qwen2.5-coder:7b)...
-    START "CodeJudge AI - Ollama (qwen2.5-coder:7b)" cmd /k "ollama run qwen2.5-coder:7b"
-)
+echo [3/3] Starting Frontend Server (Vite on port 5173)...
+start "CodeJudge AI - Frontend" cmd /k "cd /d %~dp0replit-frontend\artifacts\codejudge-ai && npm run dev"
 
-ECHO [2/3] Starting Backend Server (Python FastAPI on port 5000)...
-START "CodeJudge AI - Backend (Port 5000)" cmd /k "cd /d %~dp0backend && python main.py"
-
-ECHO [3/3] Starting Frontend Server (Vite)...
-START "CodeJudge AI - Frontend" cmd /k "cd /d %~dp0new-frontend && npm run dev"
-
-ECHO.
-ECHO ===================================================
-ECHO  ✅ All 3 services launched!
-ECHO  - Ollama Model: qwen2.5-coder:7b (http://localhost:11434)
-ECHO  - Backend API:  http://localhost:5000
-ECHO  - Frontend App: http://localhost:5173 / http://localhost:8080
-ECHO ===================================================
-ECHO.
-PAUSE
+echo.
+echo ===================================================
+echo   All 3 services launched successfully!
+echo   - Ollama Model: qwen2.5-coder:7b (http://localhost:11434)
+echo   - Backend API:  http://localhost:5000
+echo   - Frontend App: http://localhost:5173
+echo ===================================================
+echo.
+pause
