@@ -17,7 +17,7 @@ from app.agents.logic_agent import evaluate_logic
 from app.agents.testcase_agent import evaluate_testcases
 from app.core.config import CORS_ORIGINS, PORT
 from app.graph.workflow import evaluate_code_workflow
-from app.schemas.evaluation import EvaluationRequest
+from app.schemas.request import EvaluationRequest
 from app.services.formatter import build_evaluation_response
 
 log = logging.getLogger("codejudge.part1")
