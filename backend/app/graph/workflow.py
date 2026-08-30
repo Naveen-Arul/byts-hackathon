@@ -11,6 +11,9 @@ async def evaluate_code_workflow(
     sample_input: str = "",
     sample_output: str = "",
 ) -> dict[str, Any]:
+    from app.services.evaluator import reset_ollama_circuit_breaker
+    reset_ollama_circuit_breaker()
+
     initial_state = {
         "student_code": code,
         "language": language,

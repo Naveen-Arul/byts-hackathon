@@ -88,13 +88,15 @@ async def evaluate_part3(payload: PartPayload):
         "security_result": payload.security_result,
     }
 
-    # Run Adversarial Agent first
-    adv_res = await evaluate_adversarial(state)
-    state["adversarial_result"] = adv_res.get("adversarial_result", adv_res)
+    # Run Adversarial and Feedback agents concurrently in Process 3
+    adv_res, feed_res = await asyncio.gather(
+        evaluate_adversarial(state),
+        generate_feedback(state),
+        return_exceptions=True,
+    )
 
-    # Run Feedback and Judge agents
-    feed_res = await generate_feedback(state)
-    state["feedback_result"] = feed_res.get("feedback_result", feed_res)
+    state["adversarial_result"] = adv_res.get("adversarial_result", adv_res) if isinstance(adv_res, dict) else {}
+    state["feedback_result"] = feed_res.get("feedback_result", feed_res) if isinstance(feed_res, dict) else {}
 
     judge_res = await judge_evaluation(state)
     final_res = judge_res.get("final_result", judge_res)

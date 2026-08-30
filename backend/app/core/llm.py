@@ -21,6 +21,19 @@ AGENT_KEYS = {
 _backup_env = os.getenv("GROQ_BACKUP_KEYS", "").strip()
 BACKUP_KEYS = [k.strip() for k in _backup_env.split(",") if k.strip()]
 
+INVALID_KEYS: set[str] = set()
+
+
+def is_key_invalid(key: str | None) -> bool:
+    if not key:
+        return False
+    return key.strip() in INVALID_KEYS
+
+
+def mark_key_invalid(key: str | None) -> None:
+    if key and key.strip():
+        INVALID_KEYS.add(key.strip())
+
 
 def create_llm(
     agent_name: str,
@@ -33,8 +46,10 @@ def create_llm(
     if not api_key:
         raise RuntimeError(f"No API key found for agent '{agent_name}'.")
 
-    # Clean the key to make sure no whitespaces/newlines remain
     api_key = api_key.strip()
+    if api_key in INVALID_KEYS:
+        raise RuntimeError(f"Key '{api_key[:12]}...' is marked invalid/forbidden.")
+
     model = model_override or GROQ_MODEL
 
     return ChatGroq(

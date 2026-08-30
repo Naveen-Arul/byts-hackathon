@@ -141,11 +141,20 @@ def _normalize_json_literals(text: str) -> str:
     return text
 
 
+def strip_think_tags(text: str) -> str:
+    if not text:
+        return ""
+    cleaned = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL | re.IGNORECASE)
+    cleaned = re.sub(r"<think>.*$", "", cleaned, flags=re.DOTALL | re.IGNORECASE)
+    return cleaned.strip()
+
+
 def parse_json_object(content: str, agent_name: str = "unknown") -> dict[str, Any]:
     """
     Parse a JSON object from LLM output using progressive fallback strategies.
     NEVER raises — returns {} on total failure so the pipeline keeps running.
     """
+    content = strip_think_tags(content)
     cleaned_content = _normalize_json_literals(content)
 
     # Strategy 1: Direct parse (fastest path for well-formed output)

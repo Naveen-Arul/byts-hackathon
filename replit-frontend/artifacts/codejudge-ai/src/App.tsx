@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Activity, ArrowLeft, ArrowRight, BarChart3, BookOpen, BrainCircuit, Check,
+  Activity, AlertTriangle, ArrowLeft, ArrowRight, BarChart3, BookOpen, BrainCircuit, Check,
   CheckCircle2, ChevronDown, ChevronRight, CircleHelp, ClipboardCheck, Clock3,
-  Code2, Copy, Database, FileCode2, Filter, Gauge, GraduationCap, Layers3,
+  Code2, Compass, Copy, Database, FileCode2, Filter, Gauge, GraduationCap, Layers3,
   LayoutDashboard, Lightbulb, ListChecks, LockKeyhole, LogIn, LogOut, Menu,
   MoreHorizontal, Pencil, Play, Plus, RefreshCw, Search, Send, Settings,
   ShieldCheck, Sparkles, Terminal, Trash2, Trophy, UserRound, Users, X,
@@ -507,6 +507,231 @@ export async function evaluateCodeWithBackend(code: string, language: string) {
   }
 }
 
+export async function evaluateCodeWithBackendStream(
+  code: string,
+  language: string,
+  onProgress?: (eventData: any) => void
+) {
+  const payload = {
+    student_code: code,
+    language: language,
+    student_explanation: '',
+  };
+
+  try {
+    let res = await fetch('/api/evaluate/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      res = await fetch('http://localhost:5000/evaluate/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    }
+
+    if (!res.ok || !res.body) {
+      console.warn('SSE stream endpoint not available, falling back to standard endpoint.');
+      return await evaluateCodeWithBackend(code, language);
+    }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+    let finalData: any = null;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const chunks = buffer.split('\n\n');
+      buffer = chunks.pop() || '';
+
+      for (const chunk of chunks) {
+        const trimmed = chunk.trim();
+        if (trimmed.startsWith('data: ')) {
+          try {
+            const eventData = JSON.parse(trimmed.slice(6));
+            if (onProgress) {
+              onProgress(eventData);
+            }
+            if (eventData.type === 'final_result') {
+              finalData = eventData.data;
+            }
+          } catch (err) {
+            console.error('Error parsing SSE event data:', err);
+          }
+        }
+      }
+    }
+
+    if (finalData) {
+      if (finalData.review) {
+        finalData.review.code = code;
+      }
+      sessionStorage.setItem('cj-latest-evaluation', JSON.stringify(finalData));
+      return finalData;
+    } else {
+      return await evaluateCodeWithBackend(code, language);
+    }
+  } catch (err) {
+    console.warn('Streaming error, falling back to non-streaming endpoint:', err);
+    return await evaluateCodeWithBackend(code, language);
+  }
+}
+
+export type AgentState = {
+  id: string;
+  name: string;
+  stage: string;
+  status: 'pending' | 'active' | 'completed';
+  summary_text?: string;
+  icon: any;
+  slogan: string;
+};
+
+export function LiveEvaluationModal({
+  isOpen,
+  progress,
+  currentSlogan,
+  agentsList,
+  elapsedTime,
+}: {
+  isOpen: boolean;
+  progress: number;
+  currentSlogan: string;
+  agentsList: AgentState[];
+  elapsedTime: number;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+      <div className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-slate-900/90 p-6 md:p-8 shadow-2xl text-white backdrop-blur-xl">
+        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-cyan-500/15 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-emerald-500/15 blur-3xl" />
+
+        <div className="relative flex items-center justify-between border-b border-white/10 pb-5">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-2xl bg-cyan-500/20 text-cyan-300 ring-1 ring-cyan-400/30">
+              <BrainCircuit className="h-5 w-5 animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-bold tracking-tight text-white">Live Multi-Agent Pipeline</h3>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-cyan-400/10 px-2.5 py-0.5 text-[11px] font-semibold text-cyan-300 border border-cyan-400/20">
+                  <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-cyan-400" /> Real-time Stream
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">9 Specialist AI Agents evaluating your solution concurrently</p>
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="mono text-sm font-bold text-cyan-300">{progress}%</div>
+            <div className="mono text-[10px] text-slate-400">{elapsedTime}s elapsed</div>
+          </div>
+        </div>
+
+        <div className="relative mt-4 h-2.5 w-full overflow-hidden rounded-full bg-slate-800">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-cyan-500 via-sky-400 to-emerald-400 transition-all duration-500 ease-out shadow-[0_0_12px_rgba(56,189,248,0.5)]"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+
+        <div className="relative mt-5 rounded-2xl border border-cyan-400/20 bg-gradient-to-r from-cyan-950/40 via-slate-900/60 to-emerald-950/40 p-4 text-center backdrop-blur-md shadow-inner">
+          <div className="flex items-center justify-center gap-2 text-xs font-semibold text-cyan-200">
+            <Sparkles className="h-4 w-4 shrink-0 text-cyan-300 animate-spin" style={{ animationDuration: '4s' }} />
+            <span className="transition-all duration-300 ease-in-out">{currentSlogan || "Evaluating multi-agent evaluation graph..."}</span>
+          </div>
+        </div>
+
+        <div className="relative mt-6 max-h-[320px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+          {agentsList.map((agent) => {
+            const Icon = agent.icon;
+            const isCompleted = agent.status === 'completed';
+            const isActive = agent.status === 'active';
+
+            return (
+              <div
+                key={agent.id}
+                className={cx(
+                  "flex items-center justify-between rounded-xl border p-3 transition-all duration-300 text-xs",
+                  isCompleted
+                    ? "border-emerald-500/30 bg-emerald-500/[0.07] text-slate-200"
+                    : isActive
+                    ? "border-cyan-400/50 bg-cyan-500/10 text-white shadow-[0_0_15px_rgba(6,182,212,0.15)] ring-1 ring-cyan-400/30"
+                    : "border-white/5 bg-white/[0.02] text-slate-500"
+                )}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <span
+                    className={cx(
+                      "mono grid h-6 w-6 place-items-center rounded-lg text-[10px] font-bold shrink-0",
+                      isCompleted
+                        ? "bg-emerald-500/20 text-emerald-300"
+                        : isActive
+                        ? "bg-cyan-500/20 text-cyan-300"
+                        : "bg-white/5 text-slate-500"
+                    )}
+                  >
+                    {agent.stage}
+                  </span>
+                  <Icon
+                    className={cx(
+                      "h-4 w-4 shrink-0",
+                      isCompleted
+                        ? "text-emerald-400"
+                        : isActive
+                        ? "text-cyan-300 animate-bounce"
+                        : "text-slate-600"
+                    )}
+                  />
+                  <div className="truncate">
+                    <span className={cx("font-semibold", isCompleted ? "text-slate-200" : isActive ? "text-white" : "text-slate-400")}>
+                      {agent.name}
+                    </span>
+                    {agent.summary_text && isCompleted && (
+                      <span className="ml-2.5 rounded bg-emerald-400/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300 border border-emerald-400/20">
+                        {agent.summary_text}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="shrink-0 ml-2">
+                  {isCompleted ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/15 px-2.5 py-1 text-[10px] font-semibold text-emerald-300 border border-emerald-400/30">
+                      <Check className="h-3 w-3 text-emerald-400" /> Done
+                    </span>
+                  ) : isActive ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-cyan-400/15 px-2.5 py-1 text-[10px] font-semibold text-cyan-300 border border-cyan-400/30">
+                      <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-cyan-300" /> Analyzing...
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-medium text-slate-500">Pending</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4 text-[11px] text-slate-400">
+          <span className="flex items-center gap-1.5">
+            <ShieldCheck className="h-3.5 w-3.5 text-cyan-400" /> Non-blocking SSE Event Stream
+          </span>
+          <span className="mono text-slate-500">FastAPI Orchestrator : Port 5000</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Compiler({ code, setCode, onEvaluate }: { code: string; setCode: (value: string) => void; onEvaluate: (lang: string) => Promise<void> }) {
   const [language, setLanguage] = useState('Python');
   const [copied, setCopied] = useState(false);
@@ -559,16 +784,19 @@ function renderHumanReadableInsight(data: any, level = 0): React.ReactNode {
   }
 
   if (typeof data === 'string') {
-    const trimmed = data.trim();
-    if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+    const cleanText = data.replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/<think>[\s\S]*/gi, '').trim();
+    if (!cleanText) {
+      return <span className="text-slate-400 italic">No analysis output recorded.</span>;
+    }
+    if ((cleanText.startsWith('{') && cleanText.endsWith('}')) || (cleanText.startsWith('[') && cleanText.endsWith(']'))) {
       try {
-        const parsed = JSON.parse(trimmed);
+        const parsed = JSON.parse(cleanText);
         return renderHumanReadableInsight(parsed, level);
       } catch {
         // Not valid JSON
       }
     }
-    return <p className="text-xs leading-6 text-slate-600 whitespace-pre-wrap">{data}</p>;
+    return <p className="text-xs leading-6 text-slate-600 whitespace-pre-wrap">{cleanText}</p>;
   }
 
   if (Array.isArray(data)) {
@@ -633,20 +861,80 @@ function ReviewResults({ assessment = false }: { assessment?: boolean }) {
   const activeReview = storedData?.review;
   const agentOutputs = storedData?.agent_outputs || {};
 
+  const feedbackAgentData = agentOutputs?.feedback_agent || {};
+  const judgeAgentData = agentOutputs?.judge_agent || {};
+  const complexityAgentData = agentOutputs?.complexity_agent || {};
+  const securityAgentData = agentOutputs?.security_agent || {};
+  const testcaseAgentData = agentOutputs?.testcase_agent || {};
+  const adversarialAgentData = agentOutputs?.adversarial_agent || {};
+
+  const realPersonalizedFeedback =
+    feedbackAgentData?.overall_feedback ||
+    judgeAgentData?.final_reasoning ||
+    activeReview?.overall_feedback ||
+    activeReview?.final_reasoning ||
+    activeReview?.summary ||
+    (Array.isArray(activeReview?.feedback) ? activeReview.feedback.join(' ') : activeReview?.feedback) ||
+    'The multi-agent graph completed full logic, security, and algorithmic performance evaluation.';
+
+  const strengthsList: string[] =
+    (Array.isArray(feedbackAgentData?.strengths) && feedbackAgentData.strengths.length > 0 ? feedbackAgentData.strengths : null) ||
+    (Array.isArray(judgeAgentData?.strengths) && judgeAgentData.strengths.length > 0 ? judgeAgentData.strengths : null) ||
+    activeReview?.code_quality?.good_practices ||
+    activeReview?.strengths ||
+    [];
+
+  const improvementsList: string[] =
+    (Array.isArray(feedbackAgentData?.areas_for_improvement) && feedbackAgentData.areas_for_improvement.length > 0 ? feedbackAgentData.areas_for_improvement : null) ||
+    (Array.isArray(judgeAgentData?.weaknesses) && judgeAgentData.weaknesses.length > 0 ? judgeAgentData.weaknesses : null) ||
+    activeReview?.code_quality?.bad_practices ||
+    activeReview?.weaknesses ||
+    [];
+
+  const learningTopics: string[] =
+    (Array.isArray(feedbackAgentData?.recommended_learning_topics) && feedbackAgentData.recommended_learning_topics.length > 0 ? feedbackAgentData.recommended_learning_topics : null) ||
+    (Array.isArray(judgeAgentData?.recommended_topics) && judgeAgentData.recommended_topics.length > 0 ? judgeAgentData.recommended_topics : null) ||
+    activeReview?.learning_recommendations ||
+    [];
+
+  const advCases = adversarialAgentData?.test_cases;
+  const dynamicTestCases = Array.isArray(advCases) && advCases.length > 0
+    ? advCases.map((tc: any) => ({
+        name: typeof tc === 'string' ? tc : (tc.input || tc.reason || 'Boundary Case'),
+        passed: typeof tc === 'object' ? !tc.would_fail : true,
+        reason: typeof tc === 'object' ? (tc.reason || (tc.expected_output ? `Expected: ${tc.expected_output}` : '')) : '',
+      }))
+    : (adversarialAgentData?.critical_edge_cases || testcaseAgentData?.evaluated_boundaries || []).map((item: any) => ({
+        name: String(item),
+        passed: false,
+        reason: 'Boundary edge case tested',
+      }));
+
+  const complexityExplanation =
+    complexityAgentData?.explanation ||
+    complexityAgentData?.notes ||
+    activeReview?.complexity_analysis?.explanation ||
+    'Evaluated time and space complexity invariants for linear scanning.';
+
+  const securitySummaryText =
+    securityAgentData?.summary ||
+    securityAgentData?.notes ||
+    (activeReview?.security_issues?.length ? activeReview.security_issues.join(', ') : 'No unsafe system calls or dangerous memory access detected.');
+
   const currentEval = {
     score: activeReview?.score ?? evaluation.score,
     verdict: activeReview?.verdict ?? evaluation.verdict,
     confidence: activeReview?.confidence ?? evaluation.confidence,
     language: activeReview?.language ?? evaluation.language,
     problem: activeReview?.inferred_problem?.title || evaluation.problem,
-    statement: activeReview?.inferred_problem?.statement || 'Find the length of the longest substring without repeating characters.',
+    statement: activeReview?.inferred_problem?.statement || 'Algorithm and problem structure inferred by multi-agent graph.',
     code: activeReview?.code || evaluation.code,
-    reasoning: activeReview?.overall_feedback || activeReview?.summary || activeReview?.feedback?.[0] || 'The multi-agent graph evaluated logic, efficiency, and edge case coverage for this submission.',
+    reasoning: realPersonalizedFeedback,
     improved_code: activeReview?.improved_code_snippet,
-    good_practices: activeReview?.code_quality?.good_practices || ['Maintains a valid window invariant.', 'Moves the left pointer only when needed.'],
-    bad_practices: activeReview?.code_quality?.bad_practices || ['Unicode normalization is not addressed.', 'Input contract is assumed to be a string.'],
-    time_comp: activeReview?.complexity_analysis?.time_complexity?.current || 'O(n)',
-    space_comp: activeReview?.complexity_analysis?.space_complexity?.current || 'O(n)',
+    good_practices: strengthsList,
+    bad_practices: improvementsList,
+    time_comp: activeReview?.complexity_analysis?.time_complexity?.current || complexityAgentData?.time_complexity || 'O(N)',
+    space_comp: activeReview?.complexity_analysis?.space_complexity?.current || complexityAgentData?.space_complexity || 'O(1)',
     security_issues: activeReview?.security_issues || [],
     breakdown: [
       ['Logic correctness', activeReview?.logic_score ?? 94, activeReview?.logic_evaluation?.is_correct !== false ? 'Strong' : 'Review'],
@@ -680,7 +968,7 @@ function ReviewResults({ assessment = false }: { assessment?: boolean }) {
       'logic_agent': activeReview?.logic_evaluation || {
         "correctness_score": activeReview?.logic_score || 94,
         "is_correct": activeReview?.logic_score ? activeReview.logic_score > 70 : true,
-        "patterns_identified": ["Window / Pointer Traversal", "Boundary Invariant Maintenance"],
+        "patterns_identified": ["Loop Traversal", "Boundary Maintenance"],
         "summary": "Verified standard algorithmic logic flow and condition paths."
       },
       'testcase_agent': {
@@ -689,32 +977,28 @@ function ReviewResults({ assessment = false }: { assessment?: boolean }) {
         "summary": "Generated test cases across multiple boundary values and edge cases."
       },
       'complexity_agent': activeReview?.complexity_analysis || {
-        "time_complexity": activeReview?.complexity_analysis?.time_complexity?.current || "O(N)",
-        "space_complexity": activeReview?.complexity_analysis?.space_complexity?.current || "O(N)",
-        "summary": "Evaluated time and space complexity invariants for linear scanning."
+        "time_complexity": currentEval.time_comp,
+        "space_complexity": currentEval.space_comp,
+        "summary": complexityExplanation
       },
       'hardcoding_agent': {
-        "is_hardcoded": false,
+        "is_hardcoded": activeReview?.hardcoding_detected || false,
         "confidence": 98,
-        "detected_patterns": "None",
-        "summary": "No static returns or cheated outputs detected in source code."
+        "summary": activeReview?.hardcoding_detected ? "Hardcoded manual index mapping detected." : "No static returns or cheated outputs detected."
       },
       'security_agent': {
         "security_score": 100,
         "overall_risk": "Low",
-        "unsafe_calls": "None",
-        "summary": "Zero dangerous system calls, file access, or unsafe recursion detected."
+        "summary": securitySummaryText
       },
       'adversarial_agent': {
         "robustness_score": 90,
-        "stress_test_status": "Passed",
-        "vulnerabilities": ["Check integer overflow limits on maximum inputs."],
         "summary": "Executed adversarial stress testing against extreme inputs."
       },
       'feedback_agent': {
-        "overall_feedback": currentEval.reasoning,
-        "strengths": currentEval.good_practices,
-        "areas_for_improvement": currentEval.bad_practices,
+        "overall_feedback": realPersonalizedFeedback,
+        "strengths": strengthsList,
+        "areas_for_improvement": improvementsList,
         "summary": "Synthesized actionable learning recommendations and coding tips."
       },
       'judge_agent': {
@@ -728,7 +1012,7 @@ function ReviewResults({ assessment = false }: { assessment?: boolean }) {
     return defaultInsights[key] || { "status": "Completed", "summary": `Agent ${agents[index]} completed analysis successfully.` };
   };
 
-  return <><PublicNav /><Page><main className="mx-auto max-w-[1180px] px-5 py-10 lg:px-8"><div className="mb-7 flex flex-wrap items-end justify-between gap-4"><div><div className="eyebrow mb-2">Evaluation report · {storedData ? 'Live FastAPI Multi-Agent Result' : assessment ? 'assigned problem' : 'public compiler'}</div><h1 className="text-3xl font-semibold tracking-[-.05em] text-slate-950">A considered review of your solution.</h1><p className="mt-2 text-sm text-slate-500">{assessment ? 'Algorithms · Midterm / Question 01' : `${currentEval.problem} · AI-inferred context`}</p></div><Link href="/compiler" className="btn-quiet rounded-lg px-3.5 py-2.5 text-xs font-semibold" data-testid="link-review-back"><ArrowLeft size={14} /> Review another solution</Link></div><div className="grid gap-4 lg:grid-cols-[.82fr_1.18fr]"><div className="glass rounded-2xl p-6"><div className="flex items-center justify-between"><span className="eyebrow !text-slate-400">Master Judge</span><Badge tone="green"><CheckCircle2 size={12} /> {currentEval.verdict}</Badge></div><div className="mt-8 flex items-center gap-6"><ScoreRing score={currentEval.score} /><div><div className="text-sm font-semibold text-slate-800">Final score</div><p className="mt-1 max-w-[180px] text-xs leading-5 text-slate-500">{currentEval.verdict} evaluation generated by multi-agent graph.</p><div className="mt-4 flex items-center gap-2 text-xs text-slate-500"><span className="h-2 w-2 rounded-full bg-sky-500" /> {currentEval.confidence}% confidence</div></div></div><div className="mt-8 rounded-xl bg-slate-950 p-4 text-white"><div className="flex items-center gap-2 text-xs font-semibold text-cyan-300"><Sparkles size={13} /> Final reasoning</div><p className="mt-3 text-xs leading-6 text-slate-300">{currentEval.reasoning}</p><div className="mt-4 border-t border-white/10 pt-3 text-xs text-slate-400"><span className="text-slate-500">Recommended action</span><div className="mt-1 text-slate-200">Review edge cases and ensure optimal time/space trade-offs.</div></div></div></div><div className="glass rounded-2xl p-6"><div className="flex items-start justify-between gap-4"><div><div className="eyebrow !text-slate-400">{assessment ? 'Assigned problem' : 'AI-inferred problem'}</div><h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">{currentEval.problem}</h2></div><Badge>{currentEval.language}</Badge></div><p className="mt-4 text-sm leading-6 text-slate-500">{currentEval.statement}</p><div className="mt-7 grid gap-4 sm:grid-cols-2">{currentEval.breakdown.map(([label, value, note]) => <ProgressRow key={label} label={label} value={value} tone={value > 90 ? 'green' : value < 80 ? 'amber' : 'sky'} />)}</div></div></div><div className="mt-4 grid gap-4 lg:grid-cols-2"><ReportCard icon={Lightbulb} title="Logic analysis" eyebrow={`Correctness score · ${activeReview?.logic_score || 94}`}><div className="grid gap-4 sm:grid-cols-2"><div><div className="text-xs font-semibold text-emerald-600">Strengths</div><ul className="mt-2 space-y-2 text-xs leading-5 text-slate-500">{currentEval.good_practices.map((item: string, idx: number) => <li key={idx}><CheckCircle2 size={12} className="mr-1 inline text-emerald-500" />{item}</li>)}</ul></div><div><div className="text-xs font-semibold text-amber-600">Areas to improve</div><ul className="mt-2 space-y-2 text-xs leading-5 text-slate-500">{currentEval.bad_practices.map((item: string, idx: number) => <li key={idx}>• {item}</li>)}</ul></div></div></ReportCard><ReportCard icon={Database} title="Test case analysis" eyebrow={`Score · ${activeReview?.testcase_score || 85}`}><div className="flex flex-wrap gap-2">{['Empty input', 'All unique', 'All repeated', 'Boundary duplicates', 'Single char'].map(item => <span key={item} className="rounded-lg bg-emerald-50 px-2.5 py-2 text-[11px] font-medium text-emerald-700"><Check size={12} className="mr-1 inline" />{item}</span>)}</div><p className="mt-4 text-xs leading-5 text-slate-500">Evaluated test cases across multiple boundary values.</p></ReportCard><ReportCard icon={Gauge} title="Complexity" eyebrow="Efficiency analysis"><div className="grid grid-cols-2 gap-3"><div className="rounded-xl bg-slate-50 p-3"><div className="text-[11px] text-slate-500">Time complexity</div><div className="mono mt-2 text-lg text-slate-900">{currentEval.time_comp}</div></div><div className="rounded-xl bg-slate-50 p-3"><div className="text-[11px] text-slate-500">Space complexity</div><div className="mono mt-2 text-lg text-slate-900">{currentEval.space_comp}</div></div></div><p className="mt-3 text-xs leading-5 text-slate-500">Evaluated by Complexity Analysis Agent in real time.</p></ReportCard><ReportCard icon={ShieldCheck} title="Security & safety" eyebrow={currentEval.security_issues.length === 0 ? "Low risk · clear boundaries" : "Issues detected"}><div className="flex items-center gap-3"><div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-50 text-emerald-600"><CheckCircle2 size={19} /></div><div><div className="text-sm font-semibold text-slate-800">{currentEval.security_issues.length === 0 ? "No unsafe patterns detected" : `${currentEval.security_issues.length} security warnings found`}</div><div className="mt-1 text-xs text-slate-500">{currentEval.security_issues.join(', ') || "No dangerous system calls or hardcoding detected."}</div></div></div></ReportCard></div>{currentEval.improved_code && <div className="mt-4 glass rounded-2xl p-6"><div className="eyebrow !text-cyan-600">AI Suggested Refactoring</div><h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">Improved Solution Code</h2><pre className="mt-4 overflow-x-auto rounded-xl bg-slate-950 p-4 mono text-xs text-slate-200"><code>{currentEval.improved_code}</code></pre></div>}<div className="mt-4 glass rounded-2xl p-6"><div className="eyebrow !text-slate-400">Agent Insights Pipeline</div><h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">Nine agent perspectives stacked in execution order.</h2><div className="mt-6 flex flex-col gap-4">{agents.map((agent, index) => { const rawOutput = getAgentRawOutput(index); return <div key={agent} className="w-full rounded-2xl border border-slate-200/80 bg-white/80 p-5 shadow-sm backdrop-blur-sm transition-all hover:border-sky-300"><div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4"><div className="flex items-center gap-3"><span className="grid h-8 w-8 place-items-center rounded-xl bg-emerald-50 text-emerald-600 font-bold text-xs">0{index + 1}</span><div><h3 className="text-sm font-bold text-slate-900">{agent}</h3><p className="text-[11px] text-slate-400">Specialist Stage 0{index + 1} of 09</p></div></div><Badge tone="green"><CheckCircle2 size={12} strokeWidth={2.5} /> Completed</Badge></div><div className="text-xs leading-6 text-slate-600">{renderHumanReadableInsight(rawOutput)}</div></div>; })}</div></div><div className="mt-4 glass rounded-2xl border-sky-100 bg-sky-50/40 p-6"><div className="flex items-start gap-3"><div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-sky-500 text-white"><Sparkles size={18} /></div><div><div className="eyebrow !text-sky-600">Personalized feedback</div><h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">Summary & Recommendations</h2><p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">{currentEval.reasoning}</p><div className="mt-4 flex flex-wrap gap-2"><Badge>FastAPI Engine</Badge><Badge>Ollama / Groq</Badge><Badge>Multi-Agent</Badge></div></div></div></div></main></Page></>;
+  return <><PublicNav /><Page><main className="mx-auto max-w-[1180px] px-5 py-10 lg:px-8"><div className="mb-7 flex flex-wrap items-end justify-between gap-4"><div><div className="eyebrow mb-2">Evaluation report · {storedData ? 'Live FastAPI Multi-Agent Result' : assessment ? 'assigned problem' : 'public compiler'}</div><h1 className="text-3xl font-semibold tracking-[-.05em] text-slate-950">A considered review of your solution.</h1><p className="mt-2 text-sm text-slate-500">{assessment ? 'Algorithms · Midterm / Question 01' : `${currentEval.problem} · AI-inferred context`}</p></div><Link href="/compiler" className="btn-quiet rounded-lg px-3.5 py-2.5 text-xs font-semibold" data-testid="link-review-back"><ArrowLeft size={14} /> Review another solution</Link></div><div className="grid gap-4 lg:grid-cols-[.82fr_1.18fr]"><div className="glass rounded-2xl p-6"><div className="flex items-center justify-between"><span className="eyebrow !text-slate-400">Master Judge</span><Badge tone={currentEval.score >= 80 ? 'green' : 'amber'}><CheckCircle2 size={12} /> {currentEval.verdict}</Badge></div><div className="mt-8 flex items-center gap-6"><ScoreRing score={currentEval.score} /><div><div className="text-sm font-semibold text-slate-800">Final score</div><p className="mt-1 max-w-[180px] text-xs leading-5 text-slate-500">{currentEval.verdict} evaluation generated by multi-agent graph.</p><div className="mt-4 flex items-center gap-2 text-xs text-slate-500"><span className="h-2 w-2 rounded-full bg-sky-500" /> {currentEval.confidence}% confidence</div></div></div><div className="mt-8 rounded-xl bg-slate-950 p-4 text-white"><div className="flex items-center gap-2 text-xs font-semibold text-cyan-300"><Sparkles size={13} /> Final reasoning</div><p className="mt-3 text-xs leading-6 text-slate-300">{currentEval.reasoning}</p><div className="mt-4 border-t border-white/10 pt-3 text-xs text-slate-400"><span className="text-slate-500">Recommended action</span><div className="mt-1 text-slate-200">{improvementsList[0] || "Review edge cases and ensure optimal time/space trade-offs."}</div></div></div></div><div className="glass rounded-2xl p-6"><div className="flex items-start justify-between gap-4"><div><div className="eyebrow !text-slate-400">{assessment ? 'Assigned problem' : 'AI-inferred problem'}</div><h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">{currentEval.problem}</h2></div><Badge>{currentEval.language}</Badge></div><p className="mt-4 text-sm leading-6 text-slate-500">{currentEval.statement}</p><div className="mt-7 grid gap-4 sm:grid-cols-2">{currentEval.breakdown.map(([label, value, note]) => <ProgressRow key={label} label={label} value={value} tone={value > 90 ? 'green' : value < 80 ? 'amber' : 'sky'} />)}</div></div></div><div className="mt-4 grid gap-4 lg:grid-cols-2"><ReportCard icon={Lightbulb} title="Logic analysis" eyebrow={`Correctness score · ${activeReview?.logic_score || currentEval.score}`}><div className="grid gap-4 sm:grid-cols-2"><div><div className="text-xs font-semibold text-emerald-600">Strengths</div><ul className="mt-2 space-y-2 text-xs leading-5 text-slate-500">{strengthsList.length > 0 ? strengthsList.map((item: string, idx: number) => <li key={idx}><CheckCircle2 size={12} className="mr-1 inline text-emerald-500 shrink-0" />{item}</li>) : <li className="text-slate-400">Standard algorithmic flow.</li>}</ul></div><div><div className="text-xs font-semibold text-amber-600">Areas to improve</div><ul className="mt-2 space-y-2 text-xs leading-5 text-slate-500">{improvementsList.length > 0 ? improvementsList.map((item: string, idx: number) => <li key={idx}>• {item}</li>) : <li className="text-slate-400">No critical weaknesses detected.</li>}</ul></div></div></ReportCard><ReportCard icon={Database} title="Test case analysis" eyebrow={`Score · ${activeReview?.testcase_score || 85}`}><div className="flex flex-wrap gap-2">{dynamicTestCases.length > 0 ? dynamicTestCases.map((tc, idx) => <span key={idx} className={cx("rounded-lg px-2.5 py-1.5 text-[11px] font-medium flex items-center gap-1", tc.passed ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700")}>{tc.passed ? <Check size={12} /> : <AlertTriangle size={12} />}<span>{tc.name}</span></span>) : ['Standard Inputs', 'Boundary Parameters', 'Extreme Constraints'].map(item => <span key={item} className="rounded-lg bg-emerald-50 px-2.5 py-2 text-[11px] font-medium text-emerald-700"><Check size={12} className="mr-1 inline" />{item}</span>)}</div><p className="mt-4 text-xs leading-5 text-slate-500">{testcaseAgentData?.details || "Evaluated code execution against synthesized edge cases."}</p></ReportCard><ReportCard icon={Gauge} title="Complexity" eyebrow="Efficiency analysis"><div className="grid grid-cols-2 gap-3"><div className="rounded-xl bg-slate-50 p-3"><div className="text-[11px] text-slate-500">Time complexity</div><div className="mono mt-2 text-lg text-slate-900">{currentEval.time_comp}</div></div><div className="rounded-xl bg-slate-50 p-3"><div className="text-[11px] text-slate-500">Space complexity</div><div className="mono mt-2 text-lg text-slate-900">{currentEval.space_comp}</div></div></div><p className="mt-3 text-xs leading-5 text-slate-500">{complexityExplanation}</p></ReportCard><ReportCard icon={ShieldCheck} title="Security & safety" eyebrow={currentEval.security_issues.length === 0 ? "Low risk · clear boundaries" : "Issues detected"}><div className="flex items-center gap-3"><div className={cx("grid h-10 w-10 shrink-0 place-items-center rounded-xl", currentEval.security_issues.length === 0 ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600")}><CheckCircle2 size={19} /></div><div><div className="text-sm font-semibold text-slate-800">{currentEval.security_issues.length === 0 ? "Security clearance confirmed" : `${currentEval.security_issues.length} security warnings found`}</div><div className="mt-1 text-xs text-slate-500">{securitySummaryText}</div></div></div></ReportCard></div>{currentEval.improved_code && <div className="mt-4 glass rounded-2xl p-6"><div className="eyebrow !text-cyan-600">AI Suggested Refactoring</div><h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">Improved Solution Code</h2><pre className="mt-4 overflow-x-auto rounded-xl bg-slate-950 p-4 mono text-xs text-slate-200"><code>{currentEval.improved_code}</code></pre></div>}<div className="mt-4 glass rounded-2xl p-6"><div className="eyebrow !text-slate-400">Agent Insights Pipeline</div><h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">Nine agent perspectives stacked in execution order.</h2><div className="mt-6 flex flex-col gap-4">{agents.map((agent, index) => { const rawOutput = getAgentRawOutput(index); return <div key={agent} className="w-full rounded-2xl border border-slate-200/80 bg-white/80 p-5 shadow-sm backdrop-blur-sm transition-all hover:border-sky-300"><div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4"><div className="flex items-center gap-3"><span className="grid h-8 w-8 place-items-center rounded-xl bg-emerald-50 text-emerald-600 font-bold text-xs">0{index + 1}</span><div><h3 className="text-sm font-bold text-slate-900">{agent}</h3><p className="text-[11px] text-slate-400">Specialist Stage 0{index + 1} of 09</p></div></div><Badge tone="green"><CheckCircle2 size={12} strokeWidth={2.5} /> Completed</Badge></div><div className="text-xs leading-6 text-slate-600">{renderHumanReadableInsight(rawOutput)}</div></div>; })}</div></div><div className="mt-4 glass rounded-2xl border-sky-100 bg-sky-50/40 p-6"><div className="flex items-start gap-3"><div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-sky-500 text-white"><Sparkles size={18} /></div><div><div className="eyebrow !text-sky-600">Personalized feedback</div><h2 className="mt-2 text-xl font-semibold tracking-tight text-slate-900">Summary & Recommendations</h2><p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">{realPersonalizedFeedback}</p>{learningTopics.length > 0 && <div className="mt-4"><div className="text-xs font-semibold text-slate-700">Recommended Topics & Next Steps:</div><div className="mt-2 flex flex-wrap gap-2">{learningTopics.map((topic, idx) => <Badge key={idx} tone="sky">{topic}</Badge>)}</div></div>}<div className="mt-4 flex flex-wrap gap-2"><Badge>FastAPI Engine</Badge><Badge>Ollama / Groq</Badge><Badge>Multi-Agent</Badge></div></div></div></div></main></Page></>;
 }
 
 function ReportCard({ icon: Icon, title, eyebrow, children }: { icon: typeof Lightbulb; title: string; eyebrow: string; children: React.ReactNode }) {
@@ -861,28 +1145,96 @@ function Router({ role, setRole, user, setUser, code, setCode, questions, setQue
   const [, setLocation] = useLocation();
   const admin = (content: React.ReactNode) => <Guard role={role} needed="ADMIN"><AppShell role="ADMIN" setRole={setRole} user={user}>{content}</AppShell></Guard>;
   const student = (content: React.ReactNode) => <Guard role={role} needed="STUDENT"><AppShell role="STUDENT" setRole={setRole} user={user}>{content}</AppShell></Guard>;
+
+  const [isEvalModalOpen, setIsEvalModalOpen] = useState(false);
+  const [evalProgress, setEvalProgress] = useState(0);
+  const [evalSlogan, setEvalSlogan] = useState('🔍 Initializing multi-agent evaluation network...');
+  const [evalElapsedTime, setEvalElapsedTime] = useState(0);
+
+  const initialAgents: AgentState[] = [
+    { id: 'intent_detection_agent', name: 'Intent Detection', stage: '01', status: 'pending', icon: Compass, slogan: '🔍 Inferring problem context and structural intent...' },
+    { id: 'logic_agent', name: 'Logic Evaluation', stage: '02', status: 'pending', icon: BrainCircuit, slogan: '🧠 Analyzing correctness, loop invariants, and logic bounds...' },
+    { id: 'testcase_agent', name: 'Test Case Generation', stage: '03', status: 'pending', icon: Database, slogan: '🧪 Simulating edge cases and boundary parameters...' },
+    { id: 'complexity_agent', name: 'Complexity Analysis', stage: '04', status: 'pending', icon: Gauge, slogan: '⚡ Calculating asymptotic time and space complexity O(N)...' },
+    { id: 'hardcoding_agent', name: 'Hardcoding Detection', stage: '05', status: 'pending', icon: Search, slogan: '🕵️ Auditing for static return bypasses or cheat patterns...' },
+    { id: 'security_agent', name: 'Security Audit', stage: '06', status: 'pending', icon: ShieldCheck, slogan: '🛡️ Scanning for unsafe system calls & memory vulnerabilities...' },
+    { id: 'adversarial_agent', name: 'Adversarial Testing', stage: '07', status: 'pending', icon: Zap, slogan: '🎯 Executing adversarial stress testing against extreme inputs...' },
+    { id: 'feedback_agent', name: 'Explanation Analysis', stage: '08', status: 'pending', icon: Lightbulb, slogan: '💡 Formulating personalized developer feedback & tips...' },
+    { id: 'judge_agent', name: 'Master Judge Synthesis', stage: '09', status: 'pending', icon: Trophy, slogan: '🏆 Master Judge synthesizing final score and verdict...' },
+  ];
+
+  const [agentsList, setAgentsList] = useState<AgentState[]>(initialAgents);
+
   const startEvaluation = async (language: string) => {
-    await evaluateCodeWithBackend(code, language);
-    setLocation('/review-results');
+    setIsEvalModalOpen(true);
+    setEvalProgress(0);
+    setEvalElapsedTime(0);
+    setEvalSlogan('🔍 Initializing multi-agent evaluation network...');
+    setAgentsList(initialAgents.map(a => ({ ...a, status: 'pending', summary_text: undefined })));
+
+    const timer = setInterval(() => {
+      setEvalElapsedTime(prev => prev + 1);
+    }, 1000);
+
+    try {
+      await evaluateCodeWithBackendStream(code, language, (eventData) => {
+        if (eventData.type === 'agent_start') {
+          setAgentsList(prev => prev.map(a => 
+            a.id === eventData.agent ? { ...a, status: 'active' } : a
+          ));
+          if (eventData.slogan) setEvalSlogan(eventData.slogan);
+        } else if (eventData.type === 'agent_complete') {
+          setAgentsList(prev => prev.map(a => 
+            a.id === eventData.agent ? { ...a, status: 'completed', summary_text: eventData.summary_text } : a
+          ));
+          if (eventData.progress) setEvalProgress(eventData.progress);
+          if (eventData.slogan) setEvalSlogan(eventData.slogan);
+        } else if (eventData.type === 'final_result') {
+          setEvalProgress(100);
+          setAgentsList(prev => prev.map(a => ({ ...a, status: 'completed' })));
+          setEvalSlogan('🎉 Evaluation complete! Opening detailed report...');
+        }
+      });
+    } catch (err) {
+      console.error('Streaming evaluation error:', err);
+    } finally {
+      clearInterval(timer);
+      setTimeout(() => {
+        setIsEvalModalOpen(false);
+        setLocation('/review-results');
+      }, 700);
+    }
   };
-  return <Switch>
-    <Route path="/"><PublicHome /></Route>
-    <Route path="/compiler"><Compiler code={code} setCode={setCode} onEvaluate={startEvaluation} /></Route>
-    <Route path="/how-it-works"><InfoPage kind="how" /></Route><Route path="/features"><InfoPage kind="features" /></Route><Route path="/about"><InfoPage kind="about" /></Route>
-    <Route path="/login"><AuthPage setRole={setRole} setUser={setUser} /></Route><Route path="/register"><AuthPage register setRole={setRole} setUser={setUser} /></Route><Route path="/review-results"><ReviewResults /></Route>
-    <Route path="/admin">{admin(<AdminDashboard />)}</Route>
-    <Route path="/admin/questions/create">{admin(<QuestionEditor questions={questions} setQuestions={setQuestions} />)}</Route>
-    <Route path="/admin/questions/:id/edit">{admin(<QuestionEditor questions={questions} setQuestions={setQuestions} />)}</Route>
-    <Route path="/admin/questions">{admin(<QuestionsPage questions={questions} setQuestions={setQuestions} />)}</Route>
-    <Route path="/admin/assessments/create">{admin(<AssessmentCreate />)}</Route><Route path="/admin/assessments">{admin(<AdminListPage kind="assessments" />)}</Route><Route path="/admin/tests">{admin(<AdminListPage kind="tests" />)}</Route>
-    <Route path="/admin/submissions/:id">{admin(<StudentResult admin />)}</Route><Route path="/admin/submissions">{admin(<SubmissionsPage />)}</Route><Route path="/admin/results">{admin(<ResultsPage />)}</Route>
-    <Route path="/admin/students">{admin(<Page><SectionHeader eyebrow="People" title="Students" description="Students assigned to your assessment workspace." /><div className="glass overflow-hidden rounded-2xl"><div className="overflow-x-auto"><table className="w-full min-w-[700px] text-left text-xs"><thead className="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-400"><tr>{['Student', 'Student ID', 'Department', 'Year', 'Email', 'Status'].map(x => <th className="px-5 py-3" key={x}>{x}</th>)}</tr></thead><tbody className="divide-y divide-slate-100">{students.map(s => <tr className="table-row" key={s.id}><td className="px-5 py-4 font-semibold text-slate-800">{s.name}</td><td className="px-5 py-4 mono text-slate-500">{s.id}</td><td className="px-5 py-4 text-slate-500">{s.dept}</td><td className="px-5 py-4 text-slate-500">{s.year}</td><td className="px-5 py-4 text-slate-500">{s.email}</td><td className="px-5 py-4"><Badge tone={s.status === 'Assigned' ? 'green' : 'slate'}>{s.status}</Badge></td></tr>)}</tbody></table></div></div></Page>)}</Route>
-    <Route path="/admin/settings">{admin(<Page><SectionHeader eyebrow="Workspace" title="Settings" description="Local demo preferences for the CodeJudge AI workspace." /><div className="glass max-w-2xl rounded-2xl p-6 space-y-5">{['AI feedback enabled by default', 'Show confidence scores', 'Require explanation on hard questions', 'Email notifications for submissions'].map((x, i) => <label className="flex items-center justify-between border-b border-slate-100 pb-4 text-sm text-slate-700" key={x}>{x}<input type="checkbox" defaultChecked={i < 2} className="h-4 w-4 accent-sky-500" data-testid={`checkbox-setting-page-${i}`} /></label>)}</div></Page>)}</Route>
-    <Route path="/student">{student(<StudentDashboard />)}</Route><Route path="/student/assessments/:id">{student(<StudentAssessmentDetail />)}</Route><Route path="/student/assessments">{student(<StudentAssessments />)}</Route>
-    <Route path="/student/test/:testId/question/:questionId">{student(<TestWorkspace questionMode />)}</Route><Route path="/student/test/:id">{student(<TestWorkspace />)}</Route><Route path="/student/submission/:id">{student(<StudentResult />)}</Route><Route path="/student/results">{student(<StudentResults />)}</Route>
-    <Route path="/student/profile">{student(<Page><SectionHeader eyebrow="Your account" title="Profile" description="Local demo identity used for assigned assessment workflows." /><div className="glass max-w-xl rounded-2xl p-6"><div className="flex items-center gap-4"><span className="grid h-14 w-14 place-items-center rounded-2xl bg-sky-100 text-lg font-bold text-sky-700">MC</span><div><div className="text-lg font-semibold text-slate-900">Maya Chen</div><div className="text-sm text-slate-500">maya.chen@northstar.edu</div></div></div><div className="mt-7 grid gap-4 sm:grid-cols-2"><div><label className="mb-1.5 block text-xs font-semibold text-slate-600">Student ID</label><input defaultValue="STU-2048" className="field" data-testid="input-profile-student-id" /></div><div><label className="mb-1.5 block text-xs font-semibold text-slate-600">Department</label><input defaultValue="Computer Science" className="field" data-testid="input-profile-department" /></div></div><button className="btn-primary mt-6 rounded-lg px-4 py-2.5 text-xs font-semibold" data-testid="button-save-profile"><Check size={14} /> Save profile</button></div></Page>)}</Route>
-    <Route component={NotFound} />
-  </Switch>;
+
+  return (
+    <>
+      <LiveEvaluationModal
+        isOpen={isEvalModalOpen}
+        progress={evalProgress}
+        currentSlogan={evalSlogan}
+        agentsList={agentsList}
+        elapsedTime={evalElapsedTime}
+      />
+      <Switch>
+        <Route path="/"><PublicHome /></Route>
+        <Route path="/compiler"><Compiler code={code} setCode={setCode} onEvaluate={startEvaluation} /></Route>
+        <Route path="/how-it-works"><InfoPage kind="how" /></Route><Route path="/features"><InfoPage kind="features" /></Route><Route path="/about"><InfoPage kind="about" /></Route>
+        <Route path="/login"><AuthPage setRole={setRole} setUser={setUser} /></Route><Route path="/register"><AuthPage register setRole={setRole} setUser={setUser} /></Route><Route path="/review-results"><ReviewResults /></Route>
+        <Route path="/admin">{admin(<AdminDashboard />)}</Route>
+        <Route path="/admin/questions/create">{admin(<QuestionEditor questions={questions} setQuestions={setQuestions} />)}</Route>
+        <Route path="/admin/questions/:id/edit">{admin(<QuestionEditor questions={questions} setQuestions={setQuestions} />)}</Route>
+        <Route path="/admin/questions">{admin(<QuestionsPage questions={questions} setQuestions={setQuestions} />)}</Route>
+        <Route path="/admin/assessments/create">{admin(<AssessmentCreate />)}</Route><Route path="/admin/assessments">{admin(<AdminListPage kind="assessments" />)}</Route><Route path="/admin/tests">{admin(<AdminListPage kind="tests" />)}</Route>
+        <Route path="/admin/submissions/:id">{admin(<StudentResult admin />)}</Route><Route path="/admin/submissions">{admin(<SubmissionsPage />)}</Route><Route path="/admin/results">{admin(<ResultsPage />)}</Route>
+        <Route path="/admin/students">{admin(<Page><SectionHeader eyebrow="People" title="Students" description="Students assigned to your assessment workspace." /><div className="glass overflow-hidden rounded-2xl"><div className="overflow-x-auto"><table className="w-full min-w-[700px] text-left text-xs"><thead className="bg-slate-50 text-[10px] uppercase tracking-wider text-slate-400"><tr>{['Student', 'Student ID', 'Department', 'Year', 'Email', 'Status'].map(x => <th className="px-5 py-3" key={x}>{x}</th>)}</tr></thead><tbody className="divide-y divide-slate-100">{students.map(s => <tr className="table-row" key={s.id}><td className="px-5 py-4 font-semibold text-slate-800">{s.name}</td><td className="px-5 py-4 mono text-slate-500">{s.id}</td><td className="px-5 py-4 text-slate-500">{s.dept}</td><td className="px-5 py-4 text-slate-500">{s.year}</td><td className="px-5 py-4 text-slate-500">{s.email}</td><td className="px-5 py-4"><Badge tone={s.status === 'Assigned' ? 'green' : 'slate'}>{s.status}</Badge></td></tr>)}</tbody></table></div></div></Page>)}</Route>
+        <Route path="/admin/settings">{admin(<Page><SectionHeader eyebrow="Workspace" title="Settings" description="Local demo preferences for the CodeJudge AI workspace." /><div className="glass max-w-2xl rounded-2xl p-6 space-y-5">{['AI feedback enabled by default', 'Show confidence scores', 'Require explanation on hard questions', 'Email notifications for submissions'].map((x, i) => <label className="flex items-center justify-between border-b border-slate-100 pb-4 text-sm text-slate-700" key={x}>{x}<input type="checkbox" defaultChecked={i < 2} className="h-4 w-4 accent-sky-500" data-testid={`checkbox-setting-page-${i}`} /></label>)}</div></Page>)}</Route>
+        <Route path="/student">{student(<StudentDashboard />)}</Route><Route path="/student/assessments/:id">{student(<StudentAssessmentDetail />)}</Route><Route path="/student/assessments">{student(<StudentAssessments />)}</Route>
+        <Route path="/student/test/:testId/question/:questionId">{student(<TestWorkspace questionMode />)}</Route><Route path="/student/test/:id">{student(<TestWorkspace />)}</Route><Route path="/student/submission/:id">{student(<StudentResult />)}</Route><Route path="/student/results">{student(<StudentResults />)}</Route>
+        <Route path="/student/profile">{student(<Page><SectionHeader eyebrow="Your account" title="Profile" description="Local demo identity used for assigned assessment workflows." /><div className="glass max-w-xl rounded-2xl p-6"><div className="flex items-center gap-4"><span className="grid h-14 w-14 place-items-center rounded-2xl bg-sky-100 text-lg font-bold text-sky-700">MC</span><div><div className="text-lg font-semibold text-slate-900">Maya Chen</div><div className="text-sm text-slate-500">maya.chen@northstar.edu</div></div></div><div className="mt-7 grid gap-4 sm:grid-cols-2"><div><label className="mb-1.5 block text-xs font-semibold text-slate-600">Student ID</label><input defaultValue="STU-2048" className="field" data-testid="input-profile-student-id" /></div><div><label className="mb-1.5 block text-xs font-semibold text-slate-600">Department</label><input defaultValue="Computer Science" className="field" data-testid="input-profile-department" /></div></div><button className="btn-primary mt-6 rounded-lg px-4 py-2.5 text-xs font-semibold" data-testid="button-save-profile"><Check size={14} /> Save profile</button></div></Page>)}</Route>
+        <Route component={NotFound} />
+      </Switch>
+    </>
+  );
 }
 
 function App() {
